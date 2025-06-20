@@ -69,6 +69,8 @@ class AssessmentDetailView(LoginRequiredMixin, DetailView):
     
     def _get_score_insights(self, assessment):
         """Generate insights about the scores."""
+        from decimal import Decimal
+        
         insights = {
             'strengths': [],
             'weaknesses': [],
@@ -76,19 +78,26 @@ class AssessmentDetailView(LoginRequiredMixin, DetailView):
         }
         
         scores = assessment.criterion_scores
-        avg_score = sum(s for s in scores.values() if s) / 4
+        valid_scores = [s for s in scores.values() if s is not None]
+        
+        if not valid_scores:
+            return insights
+            
+        avg_score = sum(valid_scores) / len(valid_scores)
+        threshold = Decimal('0.5')
         
         for criterion, score in scores.items():
-            if score and score >= avg_score + 0.5:
-                insights['strengths'].append({
-                    'criterion': criterion.replace('_', ' ').title(),
-                    'score': score
-                })
-            elif score and score <= avg_score - 0.5:
-                insights['weaknesses'].append({
-                    'criterion': criterion.replace('_', ' ').title(),
-                    'score': score
-                })
+            if score is not None:
+                if score >= avg_score + threshold:
+                    insights['strengths'].append({
+                        'criterion': criterion.replace('_', ' ').title(),
+                        'score': score
+                    })
+                elif score <= avg_score - threshold:
+                    insights['weaknesses'].append({
+                        'criterion': criterion.replace('_', ' ').title(),
+                        'score': score
+                    })
         
         return insights
     
@@ -138,14 +147,13 @@ class UserAssessmentHistoryView(LoginRequiredMixin, ListView):
         # Calculate statistics
         assessments = self.get_queryset()
         if assessments:
-            context['avg_score'] = sum(
-                a.overall_band_score for a in assessments if a.overall_band_score
-            ) / len(assessments)
-            
-            context['best_score'] = max(
-                (a.overall_band_score for a in assessments if a.overall_band_score),
-                default=0
-            )
+            valid_scores = [a.overall_band_score for a in assessments if a.overall_band_score]
+            if valid_scores:
+                context['avg_score'] = sum(valid_scores) / len(valid_scores)
+                context['best_score'] = max(valid_scores)
+            else:
+                context['avg_score'] = 0
+                context['best_score'] = 0
             
             context['total_assessments'] = assessments.count()
         
