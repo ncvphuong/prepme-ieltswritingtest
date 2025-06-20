@@ -366,4 +366,242 @@
 
 ---
 
-This technical implementation provides a solid foundation for a modern, scalable, and maintainable IELTS Writing Test platform with contemporary design patterns and optimal user experience. 
+## 9. Stripe Payment Integration Architecture
+
+### 9.1 Stripe Integration Principles
+
+**Data Synchronization Strategy:**
+The platform uses a **hybrid approach** where critical subscription data is maintained both in Stripe (source of truth for billing) and in our local database (optimized for application queries).
+
+**Key Principles:**
+1. **Stripe as Billing Source of Truth**: All payment processing, subscription lifecycle, and billing periods are managed by Stripe
+2. **Local Database for Application Logic**: User subscription status, usage tracking, and credits are stored locally for fast queries
+3. **Regular Synchronization**: Automatic sync between Stripe and local data via webhooks and manual sync methods
+4. **Graceful Degradation**: System continues to function even during temporary Stripe API outages
+
+### 9.2 Data Flow Architecture
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Stripe API    │◄──►│   Django App     │◄──►│ Local Database  │
+│                 │    │                  │    │                 │
+│ • Customers     │    │ • StripeService  │    │ • UserSub       │
+│ • Subscriptions │    │ • Payment Views  │    │ • PaymentHist   │
+│ • Invoices      │    │ • Webhook Handler│    │ • UsageRecords  │
+│ • Payment Intents    │ • Sync Methods   │    │ • Usage Tracking│
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+```
+
+### 9.3 Subscription Lifecycle Management
+
+**Customer Creation:**
+- **Stripe Customer**: Created/retrieved via `get_or_create_customer()` method
+- **Data Stored**: Email, name, metadata with user_id for linking
+- **Local Reference**: `UserSubscription.stripe_customer_id` links to Stripe customer
+
+**Subscription Creation Process:**
+1. **Checkout Session**: User initiates payment via Stripe Checkout
+2. **Webhook Processing**: `checkout.session.completed` webhook creates local subscription
+3. **Manual Fallback**: Success page processes subscription if webhook delays
+4. **Data Synchronization**: Billing period extracted from Stripe invoice data
+
+**Billing Period Management:**
+- **Primary Source**: Stripe invoice `period_start` and `period_end` timestamps
+- **Fallback Logic**: If invoice periods are identical (immediate billing), calculate from subscription creation date
+- **Local Storage**: Converted to Django timezone-aware datetime objects
+- **Timezone Handling**: Uses Python built-in `datetime.timezone.utc` for consistency
+
+### 9.4 Payment Processing Flow
+
+**Checkout to Subscription Flow:**
+```
+User Clicks Subscribe
+        ↓
+Create Stripe Checkout Session
+(with session_id in success_url)
+        ↓
+User Completes Payment
+        ↓
+Stripe Processes Payment
+        ↓
+Two Parallel Paths:
+        ↓
+┌─────────────────┐    ┌──────────────────┐
+│ Webhook Handler │    │  Success Page    │
+│ (Async)         │    │  (Immediate)     │
+└─────────────────┘    └──────────────────┘
+        ↓                       ↓
+Create Subscription     Check if Exists
+in Database            Create if Missing
+        ↓                       ↓
+        └───── Dashboard Access ────┘
+```
+
+**Critical Implementation Details:**
+- **Session ID Passing**: Success URL includes `?session_id={CHECKOUT_SESSION_ID}` for processing
+- **Race Condition Handling**: Success page checks if subscription already exists before creating
+- **Webhook Signature Verification**: All webhooks verify Stripe signature for security
+- **Error Handling**: Comprehensive logging and fallback mechanisms
+
+### 9.5 Usage Credit Management
+
+**Credit Tracking System:**
+- **Local Storage**: `UserSubscription.assessment_credits_remaining` for real-time queries
+- **Usage Enforcement**: Checked before each AI assessment request
+- **Credit Deduction**: Immediate update when assessment is used
+- **Monthly Reset**: Credits reset at billing period renewal
+
+**Credit Validation Flow:**
+```python
+def can_use_assessment(user):
+    subscription = user.subscription
+    if not subscription.is_active:
+        return False, "No active subscription"
+    if subscription.assessment_credits_remaining <= 0:
+        return False, "No credits remaining"
+    return True, "OK"
+```
+
+### 9.6 Synchronization Mechanisms
+
+**Real-time Sync via Webhooks:**
+- `checkout.session.completed`: New subscription creation
+- `invoice.payment_succeeded`: Billing cycle renewal and credit reset
+- `customer.subscription.updated`: Status changes (cancellation, reactivation)
+- `customer.subscription.deleted`: Subscription termination
+
+**Manual Sync Methods:**
+- `sync_subscription_status()`: Updates local data from Stripe API
+- **Trigger Points**: Dashboard access, critical operations, periodic tasks
+- **Data Reconciliation**: Compares local vs Stripe data and resolves conflicts
+
+### 9.7 Error Handling & Resilience
+
+**Timezone Standardization:**
+- **Problem Solved**: Fixed `ModuleNotFoundError: No module named 'pytz'` errors
+- **Solution**: Standardized on Python built-in `datetime.timezone.utc`
+- **Consistency**: All datetime operations use same timezone handling pattern
+
+**Billing Period Edge Cases:**
+- **Immediate Billing**: When `period_start == period_end`, calculate actual billing cycle
+- **Invoice Fallback**: Primary data from invoice, fallback to subscription creation date
+- **Error Recovery**: Graceful handling of missing or invalid billing data
+
+**API Failure Handling:**
+- **Retry Logic**: Automatic retry for transient Stripe API failures
+- **Graceful Degradation**: Local data used when Stripe API unavailable
+- **Comprehensive Logging**: All Stripe interactions logged for debugging
+
+### 9.8 Security Implementation
+
+**API Key Management:**
+- **Environment Variables**: Stripe keys stored in secure environment variables
+- **Key Rotation**: Support for seamless key rotation without downtime
+- **Test vs Production**: Clear separation of test and live API keys
+
+**Webhook Security:**
+- **Signature Verification**: All webhooks verify Stripe signature
+- **Endpoint Protection**: CSRF exemption only for verified webhooks
+- **Replay Attack Prevention**: Timestamp validation and signature checking
+
+**Data Privacy:**
+- **PCI Compliance**: No sensitive payment data stored locally
+- **Stripe Handles**: All payment processing through Stripe's secure infrastructure
+- **Metadata Only**: Only non-sensitive metadata and references stored locally
+
+---
+
+## Appendix A: Stripe Payment System Debugging & Fixes
+
+### A.1 Timezone Import Resolution
+
+**Problem Identified:**
+Users experienced `ModuleNotFoundError: No module named 'pytz'` when accessing subscription dashboard after successful payments.
+
+**Root Cause Analysis:**
+The `sync_subscription_status()` method in `subscriptions/services.py` contained inconsistent timezone handling:
+- Payment processing used `datetime.timezone.utc` (working)
+- Subscription sync used `django.utils.timezone.utc` (non-existent)
+- Fallback code referenced undefined `django_timezone.utc`
+
+**Technical Solution:**
+Standardized all timezone handling to use Python's built-in timezone utilities:
+
+```python
+# Before (causing errors):
+from django.utils import timezone as django_timezone
+current_period_start = datetime.fromtimestamp(
+    invoice.period_start,
+    tz=django_timezone.utc  # AttributeError: no 'utc' attribute
+)
+
+# After (working solution):
+from datetime import datetime, timezone as dt_timezone
+current_period_start = datetime.fromtimestamp(
+    invoice.period_start,
+    tz=dt_timezone.utc  # Uses built-in Python timezone
+)
+```
+
+**Files Modified:**
+- `subscriptions/services.py`: Lines 255-275 (sync method)
+- `subscriptions/services.py`: Lines 149-152 (fallback handling)
+
+**Verification:**
+- Created test script `scripts/test_subscription_dashboard.py`
+- Confirmed subscription sync works without timezone errors
+- Verified complete payment flow from checkout to dashboard access
+
+### A.2 Payment Processing Enhancement
+
+**Session ID Integration:**
+Enhanced payment success handling with session ID parameter passing:
+
+```python
+# Checkout URL includes session ID for processing
+success_url = request.build_absolute_uri(
+    reverse('subscriptions:success')
+) + '?session_id={CHECKOUT_SESSION_ID}'
+
+# Success page processes session if webhook delayed
+session_id = self.request.GET.get('session_id')
+if session_id:
+    session = stripe.checkout.Session.retrieve(session_id)
+    if session.payment_status == 'paid':
+        # Manual subscription processing as fallback
+```
+
+**Race Condition Resolution:**
+Implemented dual-path subscription creation:
+1. **Primary Path**: Webhook handler (asynchronous)
+2. **Fallback Path**: Success page processing (immediate)
+3. **Collision Avoidance**: Check existing subscription before creation
+
+**Error Recovery:**
+- Comprehensive logging at each step
+- Graceful fallback when Stripe API calls fail
+- User-friendly error messages with actionable guidance
+
+### A.3 Implementation Impact
+
+**Before Fix:**
+- Users could complete payment successfully in Stripe
+- Subscription dashboard would crash with timezone errors
+- No way to access subscription details after payment
+
+**After Fix:**
+- Complete payment flow works end-to-end
+- Subscription dashboard accessible immediately after payment
+- Robust error handling prevents user-facing crashes
+- Consistent timezone handling across all payment operations
+
+**Performance Impact:**
+- No performance regression
+- Reduced error rate to near zero
+- Improved user experience with reliable dashboard access
+
+This appendix documents the critical debugging work that resolved payment system reliability issues, ensuring users have a smooth experience from payment completion to subscription management.
+
+---
+
+This technical implementation provides a solid foundation for a modern, scalable, and maintainable IELTS Writing Test platform with contemporary design patterns, optimal user experience, and robust payment processing infrastructure. 
