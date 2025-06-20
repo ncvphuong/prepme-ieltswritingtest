@@ -111,6 +111,11 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # API Keys and External Services
 ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY', default='')
 
+# Claude AI Configuration
+CLAUDE_MODEL = config('CLAUDE_MODEL', default='claude-3-5-sonnet-20241022')
+CLAUDE_MAX_TOKENS = config('CLAUDE_MAX_TOKENS', default=4000, cast=int)
+CLAUDE_TEMPERATURE = config('CLAUDE_TEMPERATURE', default=0.3, cast=float)
+
 # Stripe Configuration
 STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', default='')
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')

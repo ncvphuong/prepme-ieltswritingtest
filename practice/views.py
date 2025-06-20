@@ -158,7 +158,20 @@ class SubmitPracticeView(LoginRequiredMixin, DetailView):
             submission.submitted_at = timezone.now()
             submission.save()
             
-            messages.success(request, 'Your submission has been completed! Assessment will be available soon.')
+            # Automatically create assessment request
+            try:
+                from assessment.services import assessment_service
+                assessment_service.create_assessment_request(submission)
+                messages.success(
+                    request, 
+                    'Your submission has been completed! AI assessment has been requested and will be available shortly.'
+                )
+            except Exception as e:
+                messages.warning(
+                    request,
+                    'Your submission has been completed! You can request assessment from your practice history.'
+                )
+            
             return redirect('practice:history')
         
         return self.get(request, *args, **kwargs)

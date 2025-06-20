@@ -136,11 +136,17 @@
                                                     {% endif %}
                                                     
                                                     {% if submission.status == 'assessed' %}
-                                                        <a href="#" 
+                                                        <a href="{% url 'assessment:detail' submission.id %}" 
                                                            class="btn btn-sm btn-outline-success"
                                                            title="View Assessment">
                                                             <i class="fas fa-chart-line"></i>
                                                         </a>
+                                                    {% elif submission.status == 'submitted' %}
+                                                        <button class="btn btn-sm btn-outline-warning request-assessment"
+                                                                data-submission-id="{{ submission.id }}"
+                                                                title="Request Assessment">
+                                                            <i class="fas fa-robot"></i>
+                                                        </button>
                                                     {% endif %}
                                                     
                                                     <a href="{% url 'practice:task_detail' submission.task.pk %}" 
@@ -238,4 +244,66 @@
     transform: translateY(-2px);
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle assessment request buttons
+    const requestButtons = document.querySelectorAll('.request-assessment');
+    
+    requestButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const submissionId = this.dataset.submissionId;
+            const originalHtml = this.innerHTML;
+            
+            // Update button to show loading
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            this.disabled = true;
+            
+            // Make request
+            fetch(`/assessment/request/${submissionId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'requested') {
+                    this.innerHTML = '<i class="fas fa-clock"></i>';
+                    this.className = 'btn btn-sm btn-outline-info';
+                    this.title = 'Assessment Requested';
+                    this.disabled = true;
+                    
+                    // Show success message
+                    const alert = document.createElement('div');
+                    alert.className = 'alert alert-success alert-dismissible fade show';
+                    alert.innerHTML = `
+                        ${data.message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    `;
+                    document.querySelector('.container').insertBefore(alert, document.querySelector('.container').firstChild);
+                    
+                } else if (data.status === 'completed') {
+                    // Redirect to assessment view
+                    window.location.href = data.redirect_url;
+                } else {
+                    // Reset button
+                    this.innerHTML = originalHtml;
+                    this.disabled = false;
+                    
+                    // Show message
+                    alert(data.message || 'Assessment request processed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.innerHTML = originalHtml;
+                this.disabled = false;
+                alert('Failed to request assessment. Please try again.');
+            });
+        });
+    });
+});
+</script>
 {% endblock %}
