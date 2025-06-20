@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Assessment in Progress - {{ submission.task.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2>AI Assessment in Progress</h2>
+                <p class="text-muted">{{ submission.task.title }} - {{ submission.task.task_code }}</p>
+            </div>
+            
+            <!-- Progress Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center py-5">
+                    <!-- Status Icon -->
+                    <div id="status-icon" class="mb-4">
+                        <i class="fas fa-robot fa-4x text-primary"></i>
+                    </div>
+                    
+                    <!-- Status Message -->
+                    <h4 id="status-message">Preparing assessment...</h4>
+                    <p id="status-detail" class="text-muted mb-4">Please wait while Claude analyzes your writing</p>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress mb-4" style="height: 20px;">
+                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                             style="width: 0%"></div>
+                    </div>
+                    
+                    <!-- Progress Percentage -->
+                    <div id="progress-text" class="mb-3">0% Complete</div>
+                    
+                    <!-- Spinning Loader (initially visible) -->
+                    <div id="loading-spinner" class="mb-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Score Results (hidden initially) -->
+            <div id="score-results" class="card border-0 shadow-sm mb-4" style="display: none;">
+                <div class="card-header bg-success text-white text-center">
+                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Assessment Complete!</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Overall Score -->
+                    <div class="text-center mb-4">
+                        <div id="overall-score" class="display-4 text-primary mb-2">-</div>
+                        <p class="text-muted">Overall Band Score</p>
+                    </div>
+                    
+                    <!-- Individual Scores -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold">Task Response</span>
+                                <span id="task-score" class="h5 mb-0 text-primary">-</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div id="task-progress" class="progress-bar bg-primary" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold">Coherence & Cohesion</span>
+                                <span id="coherence-score" class="h5 mb-0 text-success">-</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div id="coherence-progress" class="progress-bar bg-success" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold">Lexical Resource</span>
+                                <span id="lexical-score" class="h5 mb-0 text-warning">-</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div id="lexical-progress" class="progress-bar bg-warning" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-semibold">Grammar & Accuracy</span>
+                                <span id="grammar-score" class="h5 mb-0 text-info">-</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div id="grammar-progress" class="progress-bar bg-info" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">Your Submission</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Task:</strong> {{ submission.task.title }}</p>
+                            <p><strong>Module:</strong> {{ submission.task.get_module_type_display }}</p>
+                            <p><strong>Type:</strong> {{ submission.task.get_task_number_display }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Word Count:</strong> {{ submission.word_count }} words</p>
+                            <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
+                            <p><strong>Status:</strong> <span class="badge bg-info">Processing</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="text-center">
+                <button id="view-results-btn" class="btn btn-success btn-lg" style="display: none;">
+                    <i class="fas fa-chart-line"></i> View Detailed Results
+                </button>
+                <a href="{% url 'practice:history' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes pulse-icon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse-icon 2s infinite;
+}
+
+.score-reveal {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusIcon = document.getElementById('status-icon');
+    const statusMessage = document.getElementById('status-message');
+    const statusDetail = document.getElementById('status-detail');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const scoreResults = document.getElementById('score-results');
+    const viewResultsBtn = document.getElementById('view-results-btn');
+    
+    let redirectUrl = '';
+    
+    // Start assessment stream
+    const eventSource = new EventSource('{% url "assessment:stream" submission.id %}');
+    
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        
+        switch(data.type) {
+            case 'status':
+                statusMessage.textContent = data.message;
+                statusDetail.textContent = 'Claude AI is working on your assessment...';
+                statusIcon.innerHTML = '<i class="fas fa-robot fa-4x text-primary pulse"></i>';
+                break;
+                
+            case 'progress':
+                statusMessage.textContent = data.message;
+                progressBar.style.width = data.percentage + '%';
+                progressText.textContent = data.percentage + '% Complete';
+                break;
+                
+            case 'scores':
+                // Hide loading elements
+                loadingSpinner.style.display = 'none';
+                progressBar.classList.remove('progress-bar-animated');
+                progressBar.style.width = '100%';
+                progressText.textContent = '100% Complete';
+                
+                // Show and populate scores
+                document.getElementById('overall-score').textContent = data.overall_score;
+                document.getElementById('task-score').textContent = data.task_achievement;
+                document.getElementById('coherence-score').textContent = data.coherence_cohesion;
+                document.getElementById('lexical-score').textContent = data.lexical_resource;
+                document.getElementById('grammar-score').textContent = data.grammar_accuracy;
+                
+                // Animate progress bars
+                setTimeout(() => {
+                    document.getElementById('task-progress').style.width = (data.task_achievement * 11.11) + '%';
+                    document.getElementById('coherence-progress').style.width = (data.coherence_cohesion * 11.11) + '%';
+                    document.getElementById('lexical-progress').style.width = (data.lexical_resource * 11.11) + '%';
+                    document.getElementById('grammar-progress').style.width = (data.grammar_accuracy * 11.11) + '%';
+                }, 500);
+                
+                // Show score results
+                scoreResults.style.display = 'block';
+                scoreResults.classList.add('score-reveal');
+                break;
+                
+            case 'complete':
+                statusMessage.textContent = data.message || 'Assessment Complete!';
+                statusDetail.textContent = 'Your detailed feedback is ready to view.';
+                statusIcon.innerHTML = '<i class="fas fa-check-circle fa-4x text-success"></i>';
+                
+                redirectUrl = data.redirect;
+                viewResultsBtn.style.display = 'inline-block';
+                viewResultsBtn.onclick = () => window.location.href = redirectUrl;
+                
+                eventSource.close();
+                
+                // Auto-redirect after 3 seconds
+                setTimeout(() => {
+                    if (redirectUrl) {
+                        window.location.href = redirectUrl;
+                    }
+                }, 3000);
+                break;
+                
+            case 'error':
+                statusMessage.textContent = 'Assessment Failed';
+                statusDetail.textContent = data.message;
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle fa-4x text-danger"></i>';
+                loadingSpinner.style.display = 'none';
+                
+                eventSource.close();
+                break;
+        }
+    };
+    
+    eventSource.onerror = function(event) {
+        console.error('EventSource failed:', event);
+        statusMessage.textContent = 'Connection Error';
+        statusDetail.textContent = 'Unable to connect to assessment service.';
+        statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle fa-4x text-danger"></i>';
+        loadingSpinner.style.display = 'none';
+        eventSource.close();
+    };
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', function() {
+        eventSource.close();
+    });
+});
+</script>
+{% endblock %}
