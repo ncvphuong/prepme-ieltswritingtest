@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load math_filters %}
 
 {% block title %}Assessment Results - IELTS Writing Test{% endblock %}
 
@@ -77,7 +78,7 @@
                                     <span class="h5 mb-0 text-primary">{{ assessment.task_achievement_score }}</span>
                                 </div>
                                 <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-primary" style="width: {{ assessment.task_achievement_score|floatformat:1|mul:11.11 }}%"></div>
+                                    <div class="progress-bar bg-primary" style="width: {{ assessment.task_achievement_score|mul:11.11|floatformat:1 }}%"></div>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -86,7 +87,7 @@
                                     <span class="h5 mb-0 text-success">{{ assessment.coherence_cohesion_score }}</span>
                                 </div>
                                 <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-success" style="width: {{ assessment.coherence_cohesion_score|floatformat:1|mul:11.11 }}%"></div>
+                                    <div class="progress-bar bg-success" style="width: {{ assessment.coherence_cohesion_score|mul:11.11|floatformat:1 }}%"></div>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -95,7 +96,7 @@
                                     <span class="h5 mb-0 text-warning">{{ assessment.lexical_resource_score }}</span>
                                 </div>
                                 <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-warning" style="width: {{ assessment.lexical_resource_score|floatformat:1|mul:11.11 }}%"></div>
+                                    <div class="progress-bar bg-warning" style="width: {{ assessment.lexical_resource_score|mul:11.11|floatformat:1 }}%"></div>
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -104,7 +105,7 @@
                                     <span class="h5 mb-0 text-info">{{ assessment.grammar_accuracy_score }}</span>
                                 </div>
                                 <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-info" style="width: {{ assessment.grammar_accuracy_score|floatformat:1|mul:11.11 }}%"></div>
+                                    <div class="progress-bar bg-info" style="width: {{ assessment.grammar_accuracy_score|mul:11.11|floatformat:1 }}%"></div>
                                 </div>
                             </div>
                         </div>

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load math_filters %}
 
 {% block title %}Submit Practice - {{ submission.task.title }}{% endblock %}
 
@@ -77,7 +78,7 @@
                                     <small class="text-muted">Maximum Allowed</small>
                                 </div>
                                 <div class="col-md-3">
-                                    {% with percentage=submission.word_count|floatformat:0|add:"0"|mul:100|div:submission.task.word_limit_max %}
+                                    {% with percentage=submission.word_count|percentage:submission.task.word_limit_max %}
                                         <div class="h5 text-info mb-1">{{ percentage|floatformat:0 }}%</div>
                                         <small class="text-muted">of Maximum</small>
                                     {% endwith %}
