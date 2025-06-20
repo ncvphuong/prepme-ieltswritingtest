@@ -121,13 +121,20 @@
                 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="{% url 'core:home' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
                     {% if user.is_authenticated %}
-                    <a href="{% url 'practice:list' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice</a>
-                    <a href="{% url 'progress:dashboard' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Progress</a>
-                    <a href="{% url 'subscriptions:plans' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Plans</a>
+                        <!-- Signed-in User Navigation -->
+                        <a href="{% url 'core:home' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
+                        <a href="{% url 'practice:list' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice</a>
+                        <a href="{% url 'practice:history' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice History</a>
+                        <a href="{% url 'subscriptions:dashboard' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Subscription</a>
+                    {% else %}
+                        <!-- Anonymous User Navigation -->
+                        <a href="{% url 'core:home' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
+                        <a href="{% url 'core:about' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">About</a>
+                        <a href="{% url 'subscriptions:plans' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Plans</a>
+                        <a href="{% url 'core:help' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Help Center</a>
+                        <a href="{% url 'core:contact' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Contact</a>
                     {% endif %}
-                    <a href="{% url 'core:about' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">About</a>
                 </div>
                 
                 <!-- User Menu -->
@@ -138,7 +145,14 @@
                             <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
                                 <i class="fas fa-user text-primary-600 text-sm"></i>
                             </div>
-                            <span class="hidden sm:block">{{ user.username }}</span>
+                            <span class="hidden sm:flex sm:items-center sm:space-x-2">
+                                <span>{{ user.username }}</span>
+                                {% if user.subscription and user.subscription.is_active %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500 to-blue-500 text-white">
+                                        PRO
+                                    </span>
+                                {% endif %}
+                            </span>
                             <i class="fas fa-chevron-down text-xs"></i>
                         </button>
                         <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
@@ -150,6 +164,10 @@
                                 <a href="{% url 'accounts:profile' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
                                     <i class="fas fa-user mr-3 text-gray-400"></i>
                                     Profile
+                                </a>
+                                <a href="{% url 'progress:dashboard' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <i class="fas fa-chart-line mr-3 text-gray-400"></i>
+                                    Progress
                                 </a>
                                 <a href="{% url 'accounts:preferences' %}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
                                     <i class="fas fa-cog mr-3 text-gray-400"></i>
@@ -185,20 +203,29 @@
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-200">
             <div class="px-4 py-4 space-y-3">
-                <a href="{% url 'core:home' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
                 {% if user.is_authenticated %}
-                <a href="{% url 'practice:list' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice</a>
-                <a href="{% url 'progress:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Progress</a>
-                <a href="{% url 'subscriptions:plans' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Plans</a>
-                <hr class="my-3">
-                <a href="{% url 'accounts:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Dashboard</a>
-                <a href="{% url 'accounts:profile' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Profile</a>
-                <a href="{% url 'accounts:logout' %}" class="block text-red-600 hover:text-red-700 font-medium transition-colors">Logout</a>
+                    <!-- Signed-in User Mobile Menu -->
+                    <a href="{% url 'core:home' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
+                    <a href="{% url 'practice:list' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice</a>
+                    <a href="{% url 'practice:history' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice History</a>
+                    <a href="{% url 'subscriptions:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Subscription</a>
+                    <hr class="my-3">
+                    <a href="{% url 'accounts:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Dashboard</a>
+                    <a href="{% url 'accounts:profile' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Profile</a>
+                    <a href="{% url 'progress:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Progress</a>
+                    <a href="{% url 'accounts:preferences' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Settings</a>
+                    <a href="{% url 'accounts:logout' %}" class="block text-red-600 hover:text-red-700 font-medium transition-colors">Logout</a>
                 {% else %}
-                <a href="{% url 'accounts:login' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Login</a>
-                <a href="{% url 'accounts:register' %}" class="block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium text-center transition-colors">Get Started</a>
+                    <!-- Anonymous User Mobile Menu -->
+                    <a href="{% url 'core:home' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
+                    <a href="{% url 'core:about' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">About</a>
+                    <a href="{% url 'subscriptions:plans' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Plans</a>
+                    <a href="{% url 'core:help' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Help Center</a>
+                    <a href="{% url 'core:contact' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Contact</a>
+                    <hr class="my-3">
+                    <a href="{% url 'accounts:login' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Login</a>
+                    <a href="{% url 'accounts:register' %}" class="block bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg font-medium text-center transition-colors">Get Started</a>
                 {% endif %}
-                <a href="{% url 'core:about' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">About</a>
             </div>
         </div>
     </nav>
@@ -207,7 +234,7 @@
     {% if messages %}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         {% for message in messages %}
-        <div class="mb-4 p-4 rounded-lg flex items-center justify-between animate-fade-in
+        <div data-django-message="true" class="mb-4 p-4 rounded-lg flex items-center justify-between animate-fade-in
             {% if message.tags == 'success' %}bg-success-50 text-success-800 border border-success-200
             {% elif message.tags == 'error' %}bg-danger-50 text-danger-800 border border-danger-200
             {% elif message.tags == 'warning' %}bg-warning-50 text-warning-800 border border-warning-200
@@ -277,10 +304,10 @@
                 <div>
                     <h3 class="font-semibold text-gray-900 mb-4">Support</h3>
                     <ul class="space-y-3">
-                        <li><a href="#" class="text-gray-600 hover:text-primary-600 transition-colors">Help Center</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary-600 transition-colors">Contact Us</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary-600 transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="text-gray-600 hover:text-primary-600 transition-colors">Terms of Service</a></li>
+                        <li><a href="{% url 'core:help' %}" class="text-gray-600 hover:text-primary-600 transition-colors">Help Center</a></li>
+                        <li><a href="{% url 'core:contact' %}" class="text-gray-600 hover:text-primary-600 transition-colors">Contact Us</a></li>
+                        <li><a href="{% url 'core:privacy' %}" class="text-gray-600 hover:text-primary-600 transition-colors">Privacy Policy</a></li>
+                        <li><a href="{% url 'core:terms' %}" class="text-gray-600 hover:text-primary-600 transition-colors">Terms of Service</a></li>
                     </ul>
                 </div>
             </div>
@@ -293,7 +320,7 @@
                         <a href="https://powerdigital.sg/services/web-application-development" class="text-primary-600 hover:text-primary-700 transition-colors" target="_blank" rel="noopener noreferrer">Web Application Development</a>
                     </p>
                 </div>
-                <p class="text-gray-500 text-sm mt-2 sm:mt-0">Built with ❤️ for IELTS success</p>
+                <p class="text-gray-500 text-sm mt-2 sm:mt-0">Built with ❤️ for <a href="https://ielts.org/" target="_blank" rel="noopener noreferrer" class="text-primary-600 hover:text-primary-700 transition-colors">IELTS</a> success</p>
             </div>
         </div>
     </footer>
@@ -306,10 +333,10 @@
             mobileMenu.classList.toggle('hidden');
         });
         
-        // Auto-hide messages after 5 seconds
+        // Auto-hide Django messages after 5 seconds
         setTimeout(function() {
-            const messages = document.querySelectorAll('[class*="bg-success-50"], [class*="bg-danger-50"], [class*="bg-warning-50"], [class*="bg-blue-50"]');
-            messages.forEach(function(message) {
+            const djangoMessages = document.querySelectorAll('[data-django-message="true"]');
+            djangoMessages.forEach(function(message) {
                 message.style.opacity = '0';
                 setTimeout(function() {
                     message.style.display = 'none';

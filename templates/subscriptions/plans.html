@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subscription Plans - IELTS Writing Test{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Choose Your Plan</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Unlock your IELTS writing potential with AI-powered assessments and personalized feedback.
+                Choose the plan that fits your learning goals.
+            </p>
+        </div>
+
+        <!-- Current Subscription Banner -->
+        {% if user_subscription and user_subscription.is_active %}
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-8 rounded-lg">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-700">
+                            You currently have an active <strong>{{ user_subscription.plan.name }}</strong> subscription.
+                            <a href="{% url 'subscriptions:dashboard' %}" class="underline font-medium">Manage subscription</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Pricing Cards -->
+        <div class="grid lg:grid-cols-3 gap-8 lg:gap-6">
+            {% for plan in plans %}
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden relative
+                    {% if plan.is_featured %}ring-2 ring-indigo-500 transform scale-105{% endif %}">
+                    
+                    {% if plan.is_featured %}
+                        <div class="absolute top-0 inset-x-0 bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-center py-2 text-sm font-semibold">
+                            Most Popular
+                        </div>
+                    {% endif %}
+
+                    <div class="p-8 {% if plan.is_featured %}pt-16{% endif %}">
+                        <!-- Plan Header -->
+                        <div class="text-center mb-8">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ plan.name }}</h3>
+                            <p class="text-gray-600 mb-6">{{ plan.description }}</p>
+                            
+                            <!-- Price -->
+                            <div class="mb-6">
+                                <span class="text-5xl font-bold text-gray-900">${{ plan.price|floatformat:0 }}</span>
+                                <span class="text-lg text-gray-600">
+                                    /{% if plan.billing_period == 'monthly' %}month{% elif plan.billing_period == 'annual' %}year{% else %}{{ plan.get_billing_period_display|lower }}{% endif %}
+                                </span>
+                                
+                                {% if plan.billing_period != 'monthly' and plan.savings_percentage > 0 %}
+                                    <div class="mt-2">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Save {{ plan.savings_percentage|floatformat:0 }}%
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if plan.billing_period != 'monthly' %}
+                                    <p class="text-sm text-gray-500 mt-2">
+                                        ${{ plan.monthly_price|floatformat:2 }}/month when paid {{ plan.get_billing_period_display|lower }}
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Features -->
+                        <div class="space-y-4 mb-8">
+                            {% for feature in plan.features %}
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    <span class="text-gray-700">{{ feature }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- CTA Button -->
+                        <div class="text-center">
+                            {% if user_subscription and user_subscription.is_active %}
+                                {% if user_subscription.plan.id == plan.id %}
+                                    <button class="w-full bg-gray-100 text-gray-500 font-semibold py-3 px-6 rounded-lg cursor-not-allowed">
+                                        Current Plan
+                                    </button>
+                                {% else %}
+                                    <a href="#" class="w-full bg-gray-200 text-gray-600 font-semibold py-3 px-6 rounded-lg inline-block hover:bg-gray-300 transition-colors">
+                                        Upgrade Plan
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{% url 'subscriptions:checkout' plan.id %}" 
+                                   class="w-full {% if plan.is_featured %}bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700{% else %}bg-gray-900 hover:bg-gray-800{% endif %} text-white font-semibold py-3 px-6 rounded-lg inline-block transition-all duration-200 transform hover:scale-105">
+                                    {% if user.is_authenticated %}
+                                        Get Started
+                                    {% else %}
+                                        Sign Up & Subscribe
+                                    {% endif %}
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <!-- Additional Info -->
+                        <div class="mt-6 text-center">
+                            <p class="text-xs text-gray-500">
+                                {{ plan.assessment_credits }} AI assessments 
+                                {% if plan.practice_tasks_limit %}
+                                    • {{ plan.practice_tasks_limit }} practice tasks
+                                {% else %}
+                                    • Unlimited practice tasks
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="mt-16">
+            <h2 class="text-3xl font-bold text-center text-gray-900 mb-8">Frequently Asked Questions</h2>
+            <div class="max-w-3xl mx-auto space-y-6">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="font-semibold text-gray-900 mb-2">What are AI assessments?</h3>
+                    <p class="text-gray-600">Our AI assessments provide detailed feedback on your IELTS writing tasks, scoring you across all four IELTS criteria: Task Achievement/Response, Coherence & Cohesion, Lexical Resource, and Grammatical Range & Accuracy.</p>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="font-semibold text-gray-900 mb-2">Can I cancel anytime?</h3>
+                    <p class="text-gray-600">Yes, you can cancel your subscription at any time. Your subscription will remain active until the end of your current billing period.</p>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="font-semibold text-gray-900 mb-2">Do unused assessments roll over?</h3>
+                    <p class="text-gray-600">Assessment credits reset at the beginning of each billing cycle and do not roll over to the next period.</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="font-semibold text-gray-900 mb-2">Is there a free trial?</h3>
+                    <p class="text-gray-600">Yes! New users get 3 free AI assessments to try our platform before subscribing.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trust Indicators -->
+        <div class="mt-16 text-center">
+            <div class="flex justify-center items-center space-x-8 text-gray-400">
+                <div class="flex items-center">
+                    <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <span class="text-sm">Secure Payment</span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="text-sm">Money Back Guarantee</span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="h-6 w-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span class="text-sm">Instant Access</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

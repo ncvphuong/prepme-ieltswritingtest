@@ -5,214 +5,252 @@
 {% block title %}Assessment Results - IELTS Writing Test{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    {% if assessment %}
-        <!-- Assessment Results -->
-        <div class="row">
-            <div class="col-12">
-                <!-- Header -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2>Assessment Results</h2>
-                    <div class="text-end">
-                        <span class="badge bg-success fs-6">Assessment Complete</span>
-                        <br>
-                        <small class="text-muted">{{ assessment.completed_at|date:"M d, Y H:i" }}</small>
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% if assessment %}
+            <!-- Header -->
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900">Assessment Results</h1>
+                <div class="text-right mt-4 sm:mt-0">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        Assessment Complete
+                    </span>
+                    <div class="text-sm text-gray-500 mt-1">{{ assessment.completed_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+
+            <!-- Overall Score Card -->
+            <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl shadow-xl mb-8 text-white">
+                <div class="p-8 text-center">
+                    <div class="grid md:grid-cols-3 gap-6 items-center">
+                        <div>
+                            <div class="text-5xl font-bold mb-2">{{ assessment.overall_band_score }}</div>
+                            <p class="text-primary-100">Overall Band Score</p>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-bold mb-2">{{ score_insights.band_description }}</div>
+                            <p class="text-primary-100 text-sm">IELTS Level</p>
+                        </div>
+                        <div>
+                            <div class="text-xl font-bold mb-2">{{ assessment.processing_time_seconds }}s</div>
+                            <p class="text-primary-100 text-sm">Processing Time</p>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Overall Score Card -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-body text-center bg-primary text-white">
-                        <div class="row align-items-center">
-                            <div class="col-md-4">
-                                <div class="h1 mb-0">{{ assessment.overall_band_score }}</div>
-                                <p class="mb-0">Overall Band Score</p>
+            <!-- Task Information -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
+                    <h2 class="text-xl font-semibold text-gray-900">Task Information</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-20">Task:</span>
+                                <span class="text-gray-900">{{ submission.task.title }}</span>
                             </div>
-                            <div class="col-md-4">
-                                <div class="h4 mb-1">{{ score_insights.band_description }}</div>
-                                <small>IELTS Level</small>
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-20">Code:</span>
+                                <span class="text-gray-900">{{ submission.task.task_code }}</span>
                             </div>
-                            <div class="col-md-4">
-                                <div class="h5 mb-1">{{ assessment.processing_time_seconds }}s</div>
-                                <small>Processing Time</small>
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-20">Module:</span>
+                                <span class="text-gray-900">{{ submission.task.get_module_type_display }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-20">Type:</span>
+                                <span class="text-gray-900">{{ submission.task.get_task_number_display }}</span>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-28">Word Count:</span>
+                                <span class="text-gray-900">{{ submission.word_count }} words</span>
+                            </div>
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-28">Word Limit:</span>
+                                <span class="text-gray-900">{{ submission.task.word_limit_min }}-{{ submission.task.word_limit_max }} words</span>
+                            </div>
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-28">Submitted:</span>
+                                <span class="text-gray-900">{{ submission.submitted_at|date:"M d, Y H:i" }}</span>
+                            </div>
+                            <div class="flex">
+                                <span class="font-medium text-gray-700 w-28">AI Model:</span>
+                                <span class="text-gray-900">{{ assessment.ai_model_used }}</span>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Task Information -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Task Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Task:</strong> {{ submission.task.title }}</p>
-                                <p><strong>Code:</strong> {{ submission.task.task_code }}</p>
-                                <p><strong>Module:</strong> {{ submission.task.get_module_type_display }}</p>
-                                <p><strong>Type:</strong> {{ submission.task.get_task_number_display }}</p>
+            <!-- Detailed Scores -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
+                    <h2 class="text-xl font-semibold text-gray-900">Detailed Score Breakdown</h2>
+                </div>
+                <div class="p-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold text-gray-900">
+                                    {% if submission.task.task_number == 1 %}Task Achievement{% else %}Task Response{% endif %}
+                                </span>
+                                <span class="text-2xl font-bold text-primary-600">{{ assessment.task_achievement_score }}</span>
                             </div>
-                            <div class="col-md-6">
-                                <p><strong>Word Count:</strong> {{ submission.word_count }} words</p>
-                                <p><strong>Word Limit:</strong> {{ submission.task.word_limit_min }}-{{ submission.task.word_limit_max }} words</p>
-                                <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
-                                <p><strong>AI Model:</strong> {{ assessment.ai_model_used }}</p>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-primary-600 h-3 rounded-full transition-all duration-500" style="width: {{ assessment.task_achievement_score|mul:11.11|floatformat:1 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold text-gray-900">Coherence & Cohesion</span>
+                                <span class="text-2xl font-bold text-green-600">{{ assessment.coherence_cohesion_score }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-green-600 h-3 rounded-full transition-all duration-500" style="width: {{ assessment.coherence_cohesion_score|mul:11.11|floatformat:1 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold text-gray-900">Lexical Resource</span>
+                                <span class="text-2xl font-bold text-yellow-600">{{ assessment.lexical_resource_score }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-yellow-600 h-3 rounded-full transition-all duration-500" style="width: {{ assessment.lexical_resource_score|mul:11.11|floatformat:1 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="font-semibold text-gray-900">Grammar & Accuracy</span>
+                                <span class="text-2xl font-bold text-blue-600">{{ assessment.grammar_accuracy_score }}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-blue-600 h-3 rounded-full transition-all duration-500" style="width: {{ assessment.grammar_accuracy_score|mul:11.11|floatformat:1 }}%"></div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Detailed Scores -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Detailed Score Breakdown</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-semibold">
-                                        {% if submission.task.task_number == 1 %}Task Achievement{% else %}Task Response{% endif %}
-                                    </span>
-                                    <span class="h5 mb-0 text-primary">{{ assessment.task_achievement_score }}</span>
-                                </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-primary" style="width: {{ assessment.task_achievement_score|mul:11.11|floatformat:1 }}%"></div>
-                                </div>
+            <!-- Strengths and Weaknesses -->
+            {% if score_insights.strengths or score_insights.weaknesses %}
+                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                    {% if score_insights.strengths %}
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-fit">
+                            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-4 rounded-t-xl">
+                                <h3 class="text-lg font-semibold"><i class="fas fa-check-circle mr-2"></i> Strengths</h3>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-semibold">Coherence & Cohesion</span>
-                                    <span class="h5 mb-0 text-success">{{ assessment.coherence_cohesion_score }}</span>
-                                </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-success" style="width: {{ assessment.coherence_cohesion_score|mul:11.11|floatformat:1 }}%"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-semibold">Lexical Resource</span>
-                                    <span class="h5 mb-0 text-warning">{{ assessment.lexical_resource_score }}</span>
-                                </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-warning" style="width: {{ assessment.lexical_resource_score|mul:11.11|floatformat:1 }}%"></div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="fw-semibold">Grammar & Accuracy</span>
-                                    <span class="h5 mb-0 text-info">{{ assessment.grammar_accuracy_score }}</span>
-                                </div>
-                                <div class="progress" style="height: 10px;">
-                                    <div class="progress-bar bg-info" style="width: {{ assessment.grammar_accuracy_score|mul:11.11|floatformat:1 }}%"></div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    {% for strength in score_insights.strengths %}
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-700">{{ strength.criterion }}</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">{{ strength.score }}</span>
+                                        </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    {% endif %}
+                    
+                    {% if score_insights.weaknesses %}
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 h-fit">
+                            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-6 py-4 rounded-t-xl">
+                                <h3 class="text-lg font-semibold"><i class="fas fa-exclamation-triangle mr-2"></i> Areas for Improvement</h3>
+                            </div>
+                            <div class="p-6">
+                                <div class="space-y-3">
+                                    {% for weakness in score_insights.weaknesses %}
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-700">{{ weakness.criterion }}</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">{{ weakness.score }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
+            {% endif %}
 
-                <!-- Strengths and Weaknesses -->
-                {% if score_insights.strengths or score_insights.weaknesses %}
-                    <div class="row mb-4">
-                        {% if score_insights.strengths %}
-                            <div class="col-md-6">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-header bg-success text-white">
-                                        <h6 class="mb-0"><i class="fas fa-check-circle"></i> Strengths</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {% for strength in score_insights.strengths %}
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span>{{ strength.criterion }}</span>
-                                                <span class="badge bg-success">{{ strength.score }}</span>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
+                <!-- 2-Column Layout: Response and Feedback -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Left Column: Your Response -->
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-lg">
+                            <h5 class="text-lg font-semibold text-gray-900 mb-0">Your Response</h5>
+                        </div>
+                        <div class="p-6">
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <div class="response-text font-serif text-gray-800 leading-relaxed whitespace-pre-wrap">{{ submission.content }}</div>
                             </div>
-                        {% endif %}
-                        
-                        {% if score_insights.weaknesses %}
-                            <div class="col-md-6">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-header bg-warning text-white">
-                                        <h6 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Areas for Improvement</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        {% for weakness in score_insights.weaknesses %}
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span>{{ weakness.criterion }}</span>
-                                                <span class="badge bg-warning">{{ weakness.score }}</span>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
+                            <div class="mt-4 flex justify-between text-sm text-gray-500">
+                                <span>Word Count: <strong class="{% if submission.word_count < submission.task.word_limit_min %}text-orange-500{% elif submission.word_count > submission.task.word_limit_max %}text-red-500{% else %}text-green-500{% endif %}">{{ submission.word_count }}</strong></span>
+                                <span>Target: {{ submission.task.word_limit_min }}-{{ submission.task.word_limit_max }} words</span>
                             </div>
-                        {% endif %}
+                        </div>
                     </div>
-                {% endif %}
 
-                <!-- Detailed Feedback -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Detailed Feedback</h5>
-                    </div>
-                    <div class="card-body">
-                        {% for feedback_type, feedback_list in feedback_by_type.items %}
-                            {% for feedback in feedback_list %}
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="text-primary mb-0">
-                                            {% if feedback.feedback_type == 'task_achievement' %}
-                                                {% if submission.task.task_number == 1 %}Task Achievement{% else %}Task Response{% endif %}
-                                            {% elif feedback.feedback_type == 'coherence_cohesion' %}
-                                                Coherence and Cohesion
-                                            {% elif feedback.feedback_type == 'lexical_resource' %}
-                                                Lexical Resource
-                                            {% elif feedback.feedback_type == 'grammar_accuracy' %}
-                                                Grammatical Range and Accuracy
-                                            {% else %}
-                                                {{ feedback.title }}
+                    <!-- Right Column: Detailed Feedback -->
+                    <div class="bg-white rounded-lg shadow-md">
+                        <div class="bg-blue-50 px-6 py-4 border-b border-blue-200 rounded-t-lg">
+                            <h5 class="text-lg font-semibold text-blue-900 mb-0">Detailed Feedback</h5>
+                        </div>
+                        <div class="p-6 max-h-96 overflow-y-auto">
+                            {% for feedback_type, feedback_list in feedback_by_type.items %}
+                                {% for feedback in feedback_list %}
+                                    <div class="mb-6 last:mb-0">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <h6 class="text-blue-700 font-semibold text-sm">
+                                                {% if feedback.feedback_type == 'task_achievement' %}
+                                                    {% if submission.task.task_number == 1 %}Task Achievement{% else %}Task Response{% endif %}
+                                                {% elif feedback.feedback_type == 'coherence_cohesion' %}
+                                                    Coherence and Cohesion
+                                                {% elif feedback.feedback_type == 'lexical_resource' %}
+                                                    Lexical Resource
+                                                {% elif feedback.feedback_type == 'grammar_accuracy' %}
+                                                    Grammatical Range and Accuracy
+                                                {% else %}
+                                                    {{ feedback.title }}
+                                                {% endif %}
+                                            </h6>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                {% if feedback.severity == 'info' %}bg-blue-100 text-blue-800
+                                                {% elif feedback.severity == 'suggestion' %}bg-green-100 text-green-800
+                                                {% elif feedback.severity == 'warning' %}bg-yellow-100 text-yellow-800
+                                                {% elif feedback.severity == 'error' %}bg-red-100 text-red-800
+                                                {% endif %}">
+                                                {{ feedback.get_severity_display }}
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="border-l-4 
+                                            {% if feedback.severity == 'info' %}border-blue-400 bg-blue-50
+                                            {% elif feedback.severity == 'suggestion' %}border-green-400 bg-green-50
+                                            {% elif feedback.severity == 'warning' %}border-yellow-400 bg-yellow-50
+                                            {% elif feedback.severity == 'error' %}border-red-400 bg-red-50
+                                            {% endif %} pl-4 py-3 rounded-r-lg">
+                                            <div class="text-gray-700 text-sm leading-relaxed">{{ feedback.content|linebreaks }}</div>
+                                            
+                                            {% if feedback.suggestion %}
+                                                <div class="mt-3 p-3 bg-blue-100 border-l-4 border-blue-400 rounded-r text-sm">
+                                                    <strong class="text-blue-800">Suggestion:</strong><br>
+                                                    <div class="text-blue-700 mt-1">{{ feedback.suggestion|linebreaks }}</div>
+                                                </div>
                                             {% endif %}
-                                        </h6>
-                                        <span class="badge bg-{{ feedback.severity }}">
-                                            {{ feedback.get_severity_display }}
-                                        </span>
-                                    </div>
-                                    
-                                    <div class="p-3 border-start border-4 border-{{ feedback.severity }} bg-light">
-                                        {{ feedback.content|linebreaks }}
-                                        
-                                        {% if feedback.suggestion %}
-                                            <div class="mt-3 p-2 bg-info bg-opacity-10 rounded border-start border-3 border-info">
-                                                <strong>Suggestion:</strong><br>
-                                                {{ feedback.suggestion|linebreaks }}
-                                            </div>
-                                        {% endif %}
-                                        
-                                        {% if feedback.highlighted_text %}
-                                            <div class="mt-2">
-                                                <small class="text-muted">
+                                            
+                                            {% if feedback.highlighted_text %}
+                                                <div class="mt-2 text-xs text-gray-500">
                                                     <strong>Refers to:</strong> "{{ feedback.highlighted_text }}"
-                                                </small>
-                                            </div>
-                                        {% endif %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                </div>
+                                {% endfor %}
                             {% endfor %}
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Your Response -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-light">
-                        <h5 class="mb-0">Your Response</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="p-3 bg-white border rounded response-text">
-                            {{ submission.content|linebreaks }}
                         </div>
                     </div>
                 </div>

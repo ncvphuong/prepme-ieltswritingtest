@@ -4,129 +4,142 @@
 {% block title %}AI Assessment in Progress - {{ submission.task.title }}{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Header -->
-            <div class="text-center mb-4">
-                <h2>AI Assessment in Progress</h2>
-                <p class="text-muted">{{ submission.task.title }} - {{ submission.task.task_code }}</p>
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">AI Assessment in Progress</h1>
+            <p class="text-gray-600">{{ submission.task.title }} - {{ submission.task.task_code }}</p>
+        </div>
+        
+        <!-- Progress Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8">
+            <div class="text-center py-12 px-8">
+                <!-- Status Icon -->
+                <div id="status-icon" class="mb-6">
+                    <i class="fas fa-robot text-6xl text-primary-600"></i>
+                </div>
+                
+                <!-- Status Message -->
+                <h2 id="status-message" class="text-2xl font-bold text-gray-900 mb-2">Preparing assessment...</h2>
+                <p id="status-detail" class="text-gray-600 mb-6">Please wait while Claude analyzes your writing</p>
+                
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-5 mb-4">
+                    <div id="progress-bar" class="bg-gradient-to-r from-primary-500 to-primary-600 h-5 rounded-full transition-all duration-500 ease-out animate-pulse" style="width: 0%"></div>
+                </div>
+                
+                <!-- Progress Percentage -->
+                <div id="progress-text" class="text-lg font-semibold text-gray-700 mb-6">0% Complete</div>
+                
+                <!-- Spinning Loader (initially visible) -->
+                <div id="loading-spinner" class="mb-4">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+                </div>
             </div>
-            
-            <!-- Progress Card -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body text-center py-5">
-                    <!-- Status Icon -->
-                    <div id="status-icon" class="mb-4">
-                        <i class="fas fa-robot fa-4x text-primary"></i>
+        </div>
+        
+        <!-- Score Results (hidden initially) -->
+        <div id="score-results" class="bg-white rounded-2xl shadow-xl border border-gray-200 mb-8" style="display: none;">
+            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white text-center py-6 rounded-t-2xl">
+                <h3 class="text-xl font-bold mb-0"><i class="fas fa-check-circle mr-2"></i> Assessment Complete!</h3>
+            </div>
+            <div class="p-8">
+                <!-- Overall Score -->
+                <div class="text-center mb-8">
+                    <div id="overall-score" class="text-6xl font-bold text-primary-600 mb-2">-</div>
+                    <p class="text-gray-600 text-lg">Overall Band Score</p>
+                </div>
+                
+                <!-- Individual Scores -->
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-900">Task Response</span>
+                            <span id="task-score" class="text-2xl font-bold text-primary-600">-</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="task-progress" class="bg-primary-600 h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
                     </div>
-                    
-                    <!-- Status Message -->
-                    <h4 id="status-message">Preparing assessment...</h4>
-                    <p id="status-detail" class="text-muted mb-4">Please wait while Claude analyzes your writing</p>
-                    
-                    <!-- Progress Bar -->
-                    <div class="progress mb-4" style="height: 20px;">
-                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
-                             style="width: 0%"></div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-900">Coherence & Cohesion</span>
+                            <span id="coherence-score" class="text-2xl font-bold text-green-600">-</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="coherence-progress" class="bg-green-600 h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
                     </div>
-                    
-                    <!-- Progress Percentage -->
-                    <div id="progress-text" class="mb-3">0% Complete</div>
-                    
-                    <!-- Spinning Loader (initially visible) -->
-                    <div id="loading-spinner" class="mb-4">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-900">Lexical Resource</span>
+                            <span id="lexical-score" class="text-2xl font-bold text-yellow-600">-</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="lexical-progress" class="bg-yellow-600 h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="font-semibold text-gray-900">Grammar & Accuracy</span>
+                            <span id="grammar-score" class="text-2xl font-bold text-blue-600">-</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-3">
+                            <div id="grammar-progress" class="bg-blue-600 h-3 rounded-full transition-all duration-1000" style="width: 0%"></div>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Score Results (hidden initially) -->
-            <div id="score-results" class="card border-0 shadow-sm mb-4" style="display: none;">
-                <div class="card-header bg-success text-white text-center">
-                    <h5 class="mb-0"><i class="fas fa-check-circle"></i> Assessment Complete!</h5>
-                </div>
-                <div class="card-body">
-                    <!-- Overall Score -->
-                    <div class="text-center mb-4">
-                        <div id="overall-score" class="display-4 text-primary mb-2">-</div>
-                        <p class="text-muted">Overall Band Score</p>
+        </div>
+        
+        <!-- Task Information -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 rounded-t-xl">
+                <h3 class="text-lg font-semibold text-gray-900">Your Submission</h3>
+            </div>
+            <div class="p-6">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <span class="font-medium text-gray-700 w-20">Task:</span>
+                            <span class="text-gray-900">{{ submission.task.title }}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="font-medium text-gray-700 w-20">Module:</span>
+                            <span class="text-gray-900">{{ submission.task.get_module_type_display }}</span>
+                        </div>
+                        <div class="flex">
+                            <span class="font-medium text-gray-700 w-20">Type:</span>
+                            <span class="text-gray-900">{{ submission.task.get_task_number_display }}</span>
+                        </div>
                     </div>
-                    
-                    <!-- Individual Scores -->
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Task Response</span>
-                                <span id="task-score" class="h5 mb-0 text-primary">-</span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div id="task-progress" class="progress-bar bg-primary" style="width: 0%"></div>
-                            </div>
+                    <div class="space-y-3">
+                        <div class="flex">
+                            <span class="font-medium text-gray-700 w-24">Word Count:</span>
+                            <span class="text-gray-900">{{ submission.word_count }} words</span>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Coherence & Cohesion</span>
-                                <span id="coherence-score" class="h5 mb-0 text-success">-</span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div id="coherence-progress" class="progress-bar bg-success" style="width: 0%"></div>
-                            </div>
+                        <div class="flex">
+                            <span class="font-medium text-gray-700 w-24">Submitted:</span>
+                            <span class="text-gray-900">{{ submission.submitted_at|date:"M d, Y H:i" }}</span>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Lexical Resource</span>
-                                <span id="lexical-score" class="h5 mb-0 text-warning">-</span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div id="lexical-progress" class="progress-bar bg-warning" style="width: 0%"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="fw-semibold">Grammar & Accuracy</span>
-                                <span id="grammar-score" class="h5 mb-0 text-info">-</span>
-                            </div>
-                            <div class="progress" style="height: 10px;">
-                                <div id="grammar-progress" class="progress-bar bg-info" style="width: 0%"></div>
-                            </div>
+                        <div class="flex">
+                            <span class="font-medium text-gray-700 w-24">Status:</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Processing</span>
                         </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Task Information -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-light">
-                    <h6 class="mb-0">Your Submission</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>Task:</strong> {{ submission.task.title }}</p>
-                            <p><strong>Module:</strong> {{ submission.task.get_module_type_display }}</p>
-                            <p><strong>Type:</strong> {{ submission.task.get_task_number_display }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Word Count:</strong> {{ submission.word_count }} words</p>
-                            <p><strong>Submitted:</strong> {{ submission.submitted_at|date:"M d, Y H:i" }}</p>
-                            <p><strong>Status:</strong> <span class="badge bg-info">Processing</span></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="text-center">
-                <button id="view-results-btn" class="btn btn-success btn-lg" style="display: none;">
-                    <i class="fas fa-chart-line"></i> View Detailed Results
-                </button>
-                <a href="{% url 'practice:history' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to History
-                </a>
-            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="text-center space-x-4">
+            <button id="view-results-btn" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors inline-flex items-center" style="display: none;">
+                <i class="fas fa-chart-line mr-2"></i> View Detailed Results
+            </button>
+            <a href="{% url 'practice:history' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-4 rounded-lg font-semibold text-lg transition-colors inline-flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i> Back to History
+            </a>
         </div>
     </div>
 </div>
@@ -185,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'status':
                 statusMessage.textContent = data.message;
                 statusDetail.textContent = 'Claude AI is working on your assessment...';
-                statusIcon.innerHTML = '<i class="fas fa-robot fa-4x text-primary pulse"></i>';
+                statusIcon.innerHTML = '<i class="fas fa-robot text-6xl text-primary-600 pulse"></i>';
                 break;
                 
             case 'progress':
@@ -197,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'scores':
                 // Hide loading elements
                 loadingSpinner.style.display = 'none';
-                progressBar.classList.remove('progress-bar-animated');
+                progressBar.classList.remove('animate-pulse');
                 progressBar.style.width = '100%';
                 progressText.textContent = '100% Complete';
                 
@@ -218,13 +231,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Show score results
                 scoreResults.style.display = 'block';
-                scoreResults.classList.add('score-reveal');
+                scoreResults.classList.add('animate-fade-in');
                 break;
                 
             case 'complete':
                 statusMessage.textContent = data.message || 'Assessment Complete!';
                 statusDetail.textContent = 'Your detailed feedback is ready to view.';
-                statusIcon.innerHTML = '<i class="fas fa-check-circle fa-4x text-success"></i>';
+                statusIcon.innerHTML = '<i class="fas fa-check-circle text-6xl text-green-500"></i>';
                 
                 redirectUrl = data.redirect;
                 viewResultsBtn.style.display = 'inline-block';
@@ -243,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
             case 'error':
                 statusMessage.textContent = 'Assessment Failed';
                 statusDetail.textContent = data.message;
-                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle fa-4x text-danger"></i>';
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-6xl text-red-500"></i>';
                 loadingSpinner.style.display = 'none';
                 
                 eventSource.close();
@@ -255,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('EventSource failed:', event);
         statusMessage.textContent = 'Connection Error';
         statusDetail.textContent = 'Unable to connect to assessment service.';
-        statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle fa-4x text-danger"></i>';
+        statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle text-6xl text-red-500"></i>';
         loadingSpinner.style.display = 'none';
         eventSource.close();
     };

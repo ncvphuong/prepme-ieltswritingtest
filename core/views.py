@@ -51,3 +51,23 @@ class HomeView(TemplateView):
 class AboutView(TemplateView):
     """About page view."""
     template_name = 'core/about.html'
+
+
+class HelpCenterView(TemplateView):
+    """Help Center page view."""
+    template_name = 'core/help.html'
+
+
+class ContactUsView(TemplateView):
+    """Contact Us page view."""
+    template_name = 'core/contact.html'
+
+
+class PrivacyPolicyView(TemplateView):
+    """Privacy Policy page view."""
+    template_name = 'core/privacy.html'
+
+
+class TermsOfServiceView(TemplateView):
+    """Terms of Service page view."""
+    template_name = 'core/terms.html'

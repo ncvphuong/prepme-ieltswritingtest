@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Subscription - IELTS Writing Test{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Manage Subscription</h1>
+            <p class="text-gray-600 mt-2">View and manage your current subscription plan</p>
+        </div>
+
+        {% if subscription and subscription.is_active %}
+            <!-- Current Plan Overview -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">{{ subscription.plan.name }}</h2>
+                        <p class="text-gray-600">{{ subscription.plan.description }}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                            {% if subscription.status == 'active' %}bg-green-100 text-green-800
+                            {% elif subscription.status == 'past_due' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ subscription.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Plan Details Grid -->
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Billing Amount -->
+                    <div class="text-center p-4 bg-blue-50 rounded-lg">
+                        <div class="text-2xl font-bold text-blue-600">${{ subscription.plan.price }}</div>
+                        <div class="text-sm text-blue-700">per {{ subscription.plan.get_billing_period_display|lower }}</div>
+                    </div>
+
+                    <!-- Credits Remaining -->
+                    <div class="text-center p-4 bg-green-50 rounded-lg">
+                        <div class="text-2xl font-bold text-green-600">{{ subscription.assessment_credits_remaining }}</div>
+                        <div class="text-sm text-green-700">credits remaining</div>
+                    </div>
+
+                    <!-- Days Left -->
+                    <div class="text-center p-4 bg-purple-50 rounded-lg">
+                        <div class="text-2xl font-bold text-purple-600">{{ subscription.days_remaining }}</div>
+                        <div class="text-sm text-purple-700">days remaining</div>
+                    </div>
+
+                    <!-- Credits Used -->
+                    <div class="text-center p-4 bg-orange-50 rounded-lg">
+                        <div class="text-2xl font-bold text-orange-600">{{ subscription.assessment_credits_used }}</div>
+                        <div class="text-sm text-orange-700">credits used</div>
+                    </div>
+                </div>
+
+                <!-- Billing Period Details -->
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Billing Period</h3>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">Period Start</label>
+                            <div class="text-lg font-semibold text-gray-900">{{ subscription.current_period_start|date:"F d, Y" }}</div>
+                        </div>
+                        <div>
+                            <label class="text-sm font-medium text-gray-500">
+                                {% if subscription.cancel_at_period_end %}Period Ends{% else %}Next Billing{% endif %}
+                            </label>
+                            <div class="text-lg font-semibold text-gray-900">{{ subscription.current_period_end|date:"F d, Y" }}</div>
+                        </div>
+                    </div>
+                    
+                    {% if subscription.cancel_at_period_end %}
+                        <div class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-yellow-400 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-sm font-medium text-yellow-800">Your subscription will not automatically renew and will end on {{ subscription.current_period_end|date:"F d, Y" }}</span>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Plan Features -->
+                <div class="mb-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Plan Features</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        {% for feature in subscription.plan.features %}
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                <span class="text-gray-700">{{ feature }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Usage Progress -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-lg font-semibold text-gray-900">Credit Usage This Period</h3>
+                        <span class="text-sm text-gray-600">{{ subscription.assessment_credits_used }}/{{ subscription.plan.assessment_credits }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        {% widthratio subscription.assessment_credits_used subscription.plan.assessment_credits 100 as usage_percentage %}
+                        <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-300" 
+                             style="width: {{ usage_percentage }}%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                        <span>0</span>
+                        <span>{{ subscription.plan.assessment_credits }} credits</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Management Actions -->
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <!-- Billing Management -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Billing Management</h3>
+                    <p class="text-gray-600 mb-6">Update payment methods, view invoices, and manage billing details.</p>
+                    <a href="{% url 'subscriptions:billing_portal' %}" 
+                       class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors inline-block text-center">
+                        Manage Billing
+                    </a>
+                </div>
+
+                <!-- Plan Changes -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Change Plan</h3>
+                    <p class="text-gray-600 mb-6">Upgrade or downgrade your subscription to better fit your needs.</p>
+                    <a href="{% url 'subscriptions:plans' %}" 
+                       class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors inline-block text-center">
+                        View All Plans
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cancellation Section -->
+            {% if not subscription.cancel_at_period_end %}
+                <div class="bg-white rounded-lg shadow-sm border border-red-200 p-6">
+                    <h3 class="text-lg font-semibold text-red-900 mb-4">Cancel Subscription</h3>
+                    <p class="text-gray-600 mb-6">
+                        If you cancel your subscription, you'll continue to have access until {{ subscription.current_period_end|date:"F d, Y" }}. 
+                        After that, you won't be charged again, but you'll lose access to AI assessments.
+                    </p>
+                    <button onclick="cancelSubscription()" 
+                            class="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                        Cancel Subscription
+                    </button>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <!-- No Active Subscription -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Active Subscription</h3>
+                <p class="text-gray-600 mb-6">You don't currently have an active subscription. Subscribe now to access AI-powered assessments and detailed feedback.</p>
+                <a href="{% url 'subscriptions:plans' %}" 
+                   class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors inline-block">
+                    View Subscription Plans
+                </a>
+            </div>
+        {% endif %}
+
+        <!-- Recent Payments -->
+        {% if recent_payments %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-6">Recent Payments</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200">
+                                <th class="text-left py-3 px-4 font-medium text-gray-500">Date</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-500">Amount</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-500">Status</th>
+                                <th class="text-left py-3 px-4 font-medium text-gray-500">Period</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for payment in recent_payments|slice:":5" %}
+                                <tr class="border-b border-gray-100">
+                                    <td class="py-3 px-4 text-gray-900">{{ payment.created_at|date:"M d, Y" }}</td>
+                                    <td class="py-3 px-4 font-semibold">${{ payment.amount }}</td>
+                                    <td class="py-3 px-4">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            {% if payment.status == 'succeeded' %}bg-green-100 text-green-800
+                                            {% elif payment.status == 'failed' %}bg-red-100 text-red-800
+                                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ payment.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-gray-600 text-sm">
+                                        {{ payment.period_start|date:"M d" }} - {{ payment.period_end|date:"M d, Y" }}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if subscription and subscription.is_active and not subscription.cancel_at_period_end %}
+<script>
+function cancelSubscription() {
+    if (confirm('Are you sure you want to cancel your subscription? You will continue to have access until the end of your billing period, but your subscription will not renew.')) {
+        fetch('{% url "subscriptions:cancel" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();
+            } else {
+                alert('Failed to cancel subscription. Please try again or contact support.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again or contact support.');
+        });
+    }
+}
+</script>
+{% endif %}
+{% endblock %}

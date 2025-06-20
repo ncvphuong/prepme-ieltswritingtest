@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Help Center - IELTS Writing Pro{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Help Center</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">Find answers to common questions and get the most out of your IELTS Writing practice</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="max-w-2xl mx-auto mb-12">
+            <div class="relative">
+                <input type="text" placeholder="Search for help topics..." 
+                       class="w-full px-6 py-4 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                <button class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600 transition-colors">
+                    <i class="fas fa-search text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Popular Topics -->
+        <div class="grid lg:grid-cols-3 gap-8 mb-12">
+            <div class="lg:col-span-2">
+                <h2 class="text-2xl font-bold text-gray-900 mb-8">Frequently Asked Questions</h2>
+                
+                <!-- FAQ Accordion -->
+                <div class="space-y-4">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <button class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span class="font-medium text-gray-900">How does AI assessment work?</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        <div class="px-6 pb-4 text-gray-700">
+                            Our AI assessment system analyzes your writing using the same criteria as official IELTS examiners: Task Achievement/Response, Coherence and Cohesion, Lexical Resource, and Grammatical Range and Accuracy. The AI provides detailed feedback and band scores for each criterion.
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <button class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span class="font-medium text-gray-900">How many practice tasks are available?</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        <div class="px-6 pb-4 text-gray-700">
+                            We offer over 600 practice tasks covering both Academic and General Training modules. Tasks include Task 1 (graphs, charts, letters) and Task 2 (essays) with various topics and difficulty levels.
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <button class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span class="font-medium text-gray-900">What subscription plans are available?</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        <div class="px-6 pb-4 text-gray-700">
+                            We offer Basic (10 assessments/month), Pro (50 assessments/month), and Premium (unlimited assessments) plans. All plans include access to the practice library, progress tracking, and detailed feedback.
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <button class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span class="font-medium text-gray-900">How accurate are the band scores?</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        <div class="px-6 pb-4 text-gray-700">
+                            Our AI has been trained on thousands of IELTS writing samples and consistently provides scores that correlate closely with official IELTS examiner scores. However, these should be used for practice and improvement rather than as official predictions.
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <button class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span class="font-medium text-gray-900">Can I cancel my subscription anytime?</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        <div class="px-6 pb-4 text-gray-700">
+                            Yes, you can cancel your subscription at any time from your subscription management page. You'll continue to have access until the end of your billing period, and no future charges will be made.
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                        <button class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span class="font-medium text-gray-900">How do I track my progress?</span>
+                            <i class="fas fa-chevron-down text-gray-400"></i>
+                        </button>
+                        <div class="px-6 pb-4 text-gray-700">
+                            Your progress dashboard shows detailed analytics including score trends, weakest areas, improvement over time, and personalized recommendations. You can access it from the main navigation or profile dropdown.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
+                    <div class="space-y-3">
+                        <a href="{% url 'practice:list' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                            <i class="fas fa-edit mr-3 text-primary-500"></i>
+                            Start Practice
+                        </a>
+                        <a href="{% url 'subscriptions:plans' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                            <i class="fas fa-credit-card mr-3 text-primary-500"></i>
+                            View Plans
+                        </a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'progress:dashboard' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                            <i class="fas fa-chart-line mr-3 text-primary-500"></i>
+                            View Progress
+                        </a>
+                        <a href="{% url 'accounts:profile' %}" class="flex items-center text-gray-600 hover:text-primary-600 transition-colors">
+                            <i class="fas fa-user mr-3 text-primary-500"></i>
+                            Profile Settings
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
+                    <h3 class="text-lg font-semibold text-blue-900 mb-3">Need More Help?</h3>
+                    <p class="text-blue-700 text-sm mb-4">Can't find what you're looking for? Our support team is here to help.</p>
+                    <a href="{% url 'core:contact' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors inline-block">
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Categories -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Browse by Category</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-play text-green-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Getting Started</h3>
+                    <p class="text-gray-600 text-sm">Learn how to use the platform and start practicing</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-edit text-blue-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Writing Practice</h3>
+                    <p class="text-gray-600 text-sm">Tips for effective practice and improvement</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-credit-card text-purple-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Billing & Plans</h3>
+                    <p class="text-gray-600 text-sm">Subscription management and payment issues</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center hover:shadow-md transition-shadow">
+                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-cog text-orange-600 text-xl"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-900 mb-2">Account Settings</h3>
+                    <p class="text-gray-600 text-sm">Profile management and preferences</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simple accordion functionality
+document.querySelectorAll('.bg-white button').forEach(button => {
+    button.addEventListener('click', function() {
+        const content = this.nextElementSibling;
+        const icon = this.querySelector('i');
+        
+        if (content.style.display === 'none' || content.style.display === '') {
+            content.style.display = 'block';
+            icon.classList.remove('fa-chevron-down');
+            icon.classList.add('fa-chevron-up');
+        } else {
+            content.style.display = 'none';
+            icon.classList.remove('fa-chevron-up');
+            icon.classList.add('fa-chevron-down');
+        }
+    });
+    
+    // Initially hide all content
+    const content = button.nextElementSibling;
+    if (content && content.classList.contains('px-6')) {
+        content.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

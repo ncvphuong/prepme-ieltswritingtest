@@ -117,9 +117,32 @@ CLAUDE_MAX_TOKENS = config('CLAUDE_MAX_TOKENS', default=4000, cast=int)
 CLAUDE_TEMPERATURE = config('CLAUDE_TEMPERATURE', default=0.3, cast=float)
 
 # Stripe Configuration
-STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY', default='')
-STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
-STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+# Temporary fix: Load directly from .env file if decouple fails
+def get_stripe_config():
+    """Load Stripe config directly from .env file if needed."""
+    env_vars = {}
+    try:
+        with open(BASE_DIR / '.env', 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and '=' in line and not line.startswith('#'):
+                    key, value = line.split('=', 1)
+                    env_vars[key] = value
+    except:
+        pass
+    return env_vars
+
+_env_vars = get_stripe_config()
+
+# Force load from .env file directly if decouple returns short values
+_stripe_public = config('STRIPE_PUBLIC_KEY', default='')
+_stripe_secret = config('STRIPE_SECRET_KEY', default='')
+_stripe_webhook = config('STRIPE_WEBHOOK_SECRET', default='')
+
+# Use .env values if decouple returns short/placeholder values
+STRIPE_PUBLIC_KEY = _env_vars.get('STRIPE_PUBLIC_KEY', '') if len(_stripe_public) < 100 else _stripe_public
+STRIPE_SECRET_KEY = _env_vars.get('STRIPE_SECRET_KEY', '') if len(_stripe_secret) < 100 else _stripe_secret  
+STRIPE_WEBHOOK_SECRET = _env_vars.get('STRIPE_WEBHOOK_SECRET', '') if len(_stripe_webhook) < 30 else _stripe_webhook
 
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

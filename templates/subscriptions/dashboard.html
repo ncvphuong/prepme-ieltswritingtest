@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Subscription Dashboard - IELTS Writing Test{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Subscription Dashboard</h1>
+            <p class="text-gray-600 mt-2">Manage your subscription and view usage statistics</p>
+        </div>
+
+        {% if subscription %}
+            <!-- Subscription Status Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-gray-900">Current Subscription</h2>
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                        {% if subscription.status == 'active' %}bg-green-100 text-green-800
+                        {% elif subscription.status == 'canceled' %}bg-red-100 text-red-800
+                        {% elif subscription.status == 'past_due' %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ subscription.get_status_display }}
+                    </span>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Plan Info -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-1">Plan</h3>
+                        <p class="text-lg font-semibold text-gray-900">{{ subscription.plan.name }}</p>
+                        <p class="text-sm text-gray-600">${{ subscription.plan.price }}/{{ subscription.plan.get_billing_period_display|lower }}</p>
+                    </div>
+
+                    <!-- Credits Remaining -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-1">Credits Remaining</h3>
+                        <p class="text-2xl font-bold text-indigo-600">{{ subscription.assessment_credits_remaining }}</p>
+                        <p class="text-sm text-gray-600">of {{ subscription.plan.assessment_credits }} total</p>
+                    </div>
+
+                    <!-- Next Billing -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-1">
+                            {% if subscription.cancel_at_period_end %}Expires{% else %}Next Billing{% endif %}
+                        </h3>
+                        <p class="text-lg font-semibold text-gray-900">{{ subscription.current_period_end|date:"M d, Y" }}</p>
+                        <p class="text-sm text-gray-600">{{ subscription.days_remaining }} days remaining</p>
+                    </div>
+
+                    <!-- Usage This Period -->
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-1">Used This Period</h3>
+                        <p class="text-2xl font-bold text-gray-900">{{ subscription.assessment_credits_used }}</p>
+                        <p class="text-sm text-gray-600">assessments completed</p>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="mt-6">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Usage Progress</span>
+                        <span>{{ subscription.assessment_credits_used }}/{{ subscription.plan.assessment_credits }}</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2">
+                        {% widthratio subscription.assessment_credits_used subscription.plan.assessment_credits 100 as usage_percentage %}
+                        <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" 
+                             style="width: {{ usage_percentage }}%"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-3 mt-6">
+                    <a href="{% url 'subscriptions:manage' %}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        Manage Plan
+                    </a>
+                    
+                    {% if subscription.cancel_at_period_end %}
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex-1">
+                            <div class="flex items-center">
+                                <svg class="h-5 w-5 text-yellow-400 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                <span class="text-sm text-yellow-800">Your subscription will not renew</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'subscriptions:billing_portal' %}" 
+                           class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            Manage Billing
+                        </a>
+                        
+                        <button onclick="cancelSubscription()" 
+                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                            Cancel Subscription
+                        </button>
+                    {% endif %}
+                    
+                    <a href="{% url 'subscriptions:plans' %}" 
+                       class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                        View Plans
+                    </a>
+                </div>
+            </div>
+
+            <!-- Usage Statistics -->
+            {% if usage_stats %}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Usage Statistics (Last 30 Days)</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 mb-3">Total Usage</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-700">AI Assessments</span>
+                                    <span class="font-semibold">{{ usage_stats.total_assessments }}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-700">Practice Sessions</span>
+                                    <span class="font-semibold">{{ usage_stats.total_practices }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 mb-3">Daily Activity</h3>
+                            <div class="h-32 bg-gray-50 rounded-lg flex items-end justify-center p-4">
+                                <span class="text-gray-500 text-sm">Usage chart placeholder</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Recent Payments -->
+            {% if recent_payments %}
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Recent Payments</h2>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-3 px-4 font-medium text-gray-500">Date</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-500">Plan</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-500">Amount</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-500">Status</th>
+                                    <th class="text-left py-3 px-4 font-medium text-gray-500">Period</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in recent_payments %}
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-3 px-4 text-gray-900">{{ payment.created_at|date:"M d, Y" }}</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ payment.plan.name }}</td>
+                                        <td class="py-3 px-4 font-semibold">${{ payment.amount }}</td>
+                                        <td class="py-3 px-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                {% if payment.status == 'succeeded' %}bg-green-100 text-green-800
+                                                {% elif payment.status == 'failed' %}bg-red-100 text-red-800
+                                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                                {{ payment.get_status_display }}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4 text-gray-600 text-sm">
+                                            {{ payment.period_start|date:"M d" }} - {{ payment.period_end|date:"M d, Y" }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            {% endif %}
+
+        {% else %}
+            <!-- No Subscription -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <svg class="h-16 w-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">No Active Subscription</h3>
+                <p class="text-gray-600 mb-6">Subscribe to unlock AI-powered assessments and detailed feedback for your IELTS writing practice.</p>
+                <a href="{% url 'subscriptions:plans' %}" 
+                   class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-medium transition-colors inline-block">
+                    View Subscription Plans
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if subscription and not subscription.cancel_at_period_end %}
+<script>
+function cancelSubscription() {
+    if (confirm('Are you sure you want to cancel your subscription? It will remain active until the end of your billing period.')) {
+        fetch('{% url "subscriptions:cancel" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to cancel subscription. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        });
+    }
+}
+</script>
+{% endif %}
+{% endblock %}
