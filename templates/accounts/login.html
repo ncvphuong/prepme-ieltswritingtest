@@ -4,85 +4,130 @@
 {% block title %}Sign In - IELTS Writing Pro{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow">
-                <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <h2 class="h3 fw-bold text-primary">Welcome Back</h2>
-                        <p class="text-muted">Sign in to continue your IELTS journey</p>
-                    </div>
-
-                    <form method="post" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        
-                        <div class="mb-3">
-                            <label for="id_username" class="form-label">Username</label>
-                            <input type="text" 
-                                   class="form-control form-control-lg" 
-                                   id="id_username" 
-                                   name="username" 
-                                   required
-                                   value="{{ form.username.value|default:'' }}">
-                            {% if form.username.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.username.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="id_password" class="form-label">Password</label>
-                            <input type="password" 
-                                   class="form-control form-control-lg" 
-                                   id="id_password" 
-                                   name="password" 
-                                   required>
-                            {% if form.password.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.password.errors.0 }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors.0 }}
-                            </div>
-                        {% endif %}
-
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember_me">
-                            <label class="form-check-label" for="remember_me">
-                                Remember me
-                            </label>
-                        </div>
-
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-box-arrow-in-right"></i> Sign In
-                            </button>
-                        </div>
-                    </form>
-
-                    <hr class="my-4">
-
-                    <div class="text-center">
-                        <p class="mb-2">
-                            <a href="{% url 'accounts:password_reset' %}" class="text-decoration-none">
-                                Forgot your password?
-                            </a>
-                        </p>
-                        <p class="text-muted">
-                            Don't have an account? 
-                            <a href="{% url 'accounts:register' %}" class="text-decoration-none fw-bold">
-                                Sign up here
-                            </a>
-                        </p>
-                    </div>
+<div class="min-h-screen bg-gradient-to-br from-primary-50 to-blue-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8">
+        <div class="text-center animate-fade-in">
+            <div class="flex justify-center">
+                <div class="w-16 h-16 bg-primary-600 rounded-xl flex items-center justify-center mb-6 shadow-lg">
+                    <i class="fas fa-pen-nib text-white text-2xl"></i>
                 </div>
             </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
+            <p class="text-gray-600">Sign in to continue your IELTS journey</p>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-8 animate-slide-up">
+            <form method="post" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="id_username" class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input type="text" 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                               id="id_username" 
+                               name="username" 
+                               placeholder="Enter your username"
+                               required
+                               value="{{ form.username.value|default:'' }}">
+                    </div>
+                    {% if form.username.errors %}
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            {{ form.username.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="id_password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" 
+                               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors" 
+                               id="id_password" 
+                               name="password" 
+                               placeholder="Enter your password"
+                               required>
+                    </div>
+                    {% if form.password.errors %}
+                        <p class="mt-2 text-sm text-red-600 flex items-center">
+                            <i class="fas fa-exclamation-circle mr-2"></i>
+                            {{ form.password.errors.0 }}
+                        </p>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                            <p class="text-red-800 font-medium">{{ form.non_field_errors.0 }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <input type="checkbox" 
+                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" 
+                               id="remember_me">
+                        <label for="remember_me" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                    </div>
+                    <div class="text-sm">
+                        <a href="{% url 'accounts:password_reset' %}" class="text-primary-600 hover:text-primary-700 font-medium transition-colors">
+                            Forgot password?
+                        </a>
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-sign-in-alt text-primary-300 group-hover:text-primary-400"></i>
+                        </span>
+                        Sign In
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-gray-600">
+                        Don't have an account? 
+                        <a href="{% url 'accounts:register' %}" class="text-primary-600 hover:text-primary-700 font-semibold transition-colors">
+                            Sign up here
+                        </a>
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <!-- Social Login (placeholder) -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 animate-slide-up" style="animation-delay: 0.1s">
+            <div class="text-center">
+                <p class="text-gray-600 text-sm mb-4">Or continue with</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fab fa-google text-red-500 mr-2"></i>
+                        <span class="text-sm font-medium">Google</span>
+                    </button>
+                    <button class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                        <i class="fab fa-facebook text-blue-600 mr-2"></i>
+                        <span class="text-sm font-medium">Facebook</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-sm text-gray-500">
+            By signing in, you agree to our 
+            <a href="#" class="text-primary-600 hover:text-primary-700 transition-colors">Terms of Service</a> 
+            and 
+            <a href="#" class="text-primary-600 hover:text-primary-700 transition-colors">Privacy Policy</a>
         </div>
     </div>
 </div>

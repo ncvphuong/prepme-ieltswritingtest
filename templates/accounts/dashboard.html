@@ -4,202 +4,221 @@
 {% block title %}Dashboard - IELTS Writing Pro{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="h2 mb-0">Welcome back, {{ user.first_name|default:user.username }}!</h1>
-                    <p class="text-muted mb-0">Ready to improve your IELTS writing skills?</p>
+<div class="bg-gray-50 min-h-screen">
+    <!-- Header Section -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div class="animate-fade-in">
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        Welcome back, {{ user.first_name|default:user.username }}! 👋
+                    </h1>
+                    <p class="text-gray-600 mt-2">Ready to improve your IELTS writing skills?</p>
                 </div>
-                <div>
-                    <a href="{% url 'practice:list' %}" class="btn btn-primary">
-                        <i class="bi bi-pencil-square"></i> Start Practice
+                <div class="animate-slide-up">
+                    <a href="{% url 'practice:list' %}" class="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <i class="fas fa-pencil-alt mr-2"></i>
+                        Start Practice
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3 col-sm-6">
-            <div class="card dashboard-card text-center">
-                <div class="card-body">
-                    <div class="dashboard-stat">
-                        <span class="stat-number">{{ total_submissions }}</span>
-                        <span class="stat-label">Total Submissions</span>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 animate-slide-up">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-file-alt text-primary-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Total Submissions</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_submissions }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="card dashboard-card text-center">
-                <div class="card-body">
-                    <div class="dashboard-stat">
-                        <span class="stat-number">{{ completed_assessments }}</span>
-                        <span class="stat-label">Completed Assessments</span>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 animate-slide-up" style="animation-delay: 0.1s">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-success-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-check-circle text-success-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Completed Assessments</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ completed_assessments }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="card dashboard-card text-center">
-                <div class="card-body">
-                    <div class="dashboard-stat">
-                        <span class="stat-number">{{ target_band_score }}</span>
-                        <span class="stat-label">Target Band Score</span>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 animate-slide-up" style="animation-delay: 0.2s">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-target text-yellow-600 text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Target Band Score</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ target_band_score }}</p>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="card dashboard-card text-center">
-                <div class="card-body">
-                    <div class="dashboard-stat">
-                        <span class="stat-number">{{ current_level }}</span>
-                        <span class="stat-label">Current Level</span>
+            
+            <div class="bg-white rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-1 animate-slide-up" style="animation-delay: 0.3s">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <i class="fas fa-chart-line text-purple-600 text-xl"></i>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- Quick Actions -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-lightning-charge"></i> Quick Actions
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="d-grid">
-                                <a href="{% url 'practice:list' %}" class="btn btn-outline-primary btn-lg">
-                                    <i class="bi bi-pencil-square"></i>
-                                    <div class="mt-1">
-                                        <div class="fw-bold">Practice Writing</div>
-                                        <small class="text-muted">Choose from 600+ tasks</small>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-grid">
-                                <a href="{% url 'progress:dashboard' %}" class="btn btn-outline-success btn-lg">
-                                    <i class="bi bi-graph-up"></i>
-                                    <div class="mt-1">
-                                        <div class="fw-bold">View Progress</div>
-                                        <small class="text-muted">Track your improvement</small>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-grid">
-                                <a href="{% url 'practice:history' %}" class="btn btn-outline-info btn-lg">
-                                    <i class="bi bi-clock-history"></i>
-                                    <div class="mt-1">
-                                        <div class="fw-bold">Practice History</div>
-                                        <small class="text-muted">Review past submissions</small>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-grid">
-                                <a href="{% url 'subscriptions:plans' %}" class="btn btn-outline-warning btn-lg">
-                                    <i class="bi bi-star"></i>
-                                    <div class="mt-1">
-                                        <div class="fw-bold">Subscription</div>
-                                        <small class="text-muted">Manage your plan</small>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-600">Current Level</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ current_level }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Profile Summary -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-person-circle"></i> Profile Summary
-                    </h5>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Quick Actions -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 animate-fade-in">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-bolt text-yellow-500 mr-3"></i>
+                            Quick Actions
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <a href="{% url 'practice:list' %}" class="group p-6 bg-gradient-to-br from-primary-50 to-primary-100 rounded-xl border border-primary-200 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-12 h-12 bg-primary-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-pencil-alt text-white text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-primary-400 group-hover:text-primary-600 transition-colors"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">Practice Writing</h3>
+                                <p class="text-gray-600 text-sm">Choose from 600+ tasks</p>
+                            </a>
+                            
+                            <a href="{% url 'progress:dashboard' %}" class="group p-6 bg-gradient-to-br from-success-50 to-success-100 rounded-xl border border-success-200 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-12 h-12 bg-success-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-chart-line text-white text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-success-400 group-hover:text-success-600 transition-colors"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">View Progress</h3>
+                                <p class="text-gray-600 text-sm">Track your improvement</p>
+                            </a>
+                            
+                            <a href="{% url 'practice:history' %}" class="group p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-history text-white text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-blue-400 group-hover:text-blue-600 transition-colors"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">Practice History</h3>
+                                <p class="text-gray-600 text-sm">Review past submissions</p>
+                            </a>
+                            
+                            <a href="{% url 'subscriptions:plans' %}" class="group p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl border border-orange-200 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-1">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                                        <i class="fas fa-star text-white text-xl"></i>
+                                    </div>
+                                    <i class="fas fa-arrow-right text-orange-400 group-hover:text-orange-600 transition-colors"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-gray-900 mb-2">Subscription</h3>
+                                <p class="text-gray-600 text-sm">Manage your plan</p>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                            <i class="bi bi-person-fill fs-1"></i>
-                        </div>
-                        <h6 class="mt-2 mb-0">{{ user.get_full_name|default:user.username }}</h6>
-                        <small class="text-muted">{{ user.email }}</small>
+            </div>
+
+            <!-- Profile Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-lg border border-gray-100 animate-slide-up">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                            <i class="fas fa-user-circle text-primary-500 mr-3"></i>
+                            Profile Summary
+                        </h2>
                     </div>
-                    
-                    <hr>
-                    
-                    <div class="small">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Module:</span>
-                            <span class="fw-bold">{{ module_type }}</span>
+                    <div class="p-6">
+                        <div class="text-center mb-6">
+                            <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <i class="fas fa-user text-white text-2xl"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h3>
+                            <p class="text-gray-600 text-sm">{{ user.email }}</p>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Level:</span>
-                            <span class="fw-bold">{{ current_level }}</span>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600 font-medium">Module</span>
+                                <span class="text-gray-900 font-semibold">{{ module_type }}</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600 font-medium">Level</span>
+                                <span class="text-gray-900 font-semibold">{{ current_level }}</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600 font-medium">Target Score</span>
+                                <span class="text-primary-600 font-bold">{{ target_band_score }}</span>
+                            </div>
+                            {% if user.test_date %}
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-600 font-medium">Test Date</span>
+                                <span class="text-gray-900 font-semibold">{{ user.test_date|date:"M d, Y" }}</span>
+                            </div>
+                            {% endif %}
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Target Score:</span>
-                            <span class="fw-bold">{{ target_band_score }}</span>
+                        
+                        <div class="mt-6 space-y-3">
+                            <a href="{% url 'accounts:profile' %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors">
+                                <i class="fas fa-edit mr-2"></i>
+                                Edit Profile
+                            </a>
+                            <a href="{% url 'accounts:preferences' %}" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
+                                <i class="fas fa-cog mr-2"></i>
+                                Preferences
+                            </a>
                         </div>
-                        {% if user.test_date %}
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted">Test Date:</span>
-                            <span class="fw-bold">{{ user.test_date|date:"M d, Y" }}</span>
-                        </div>
-                        {% endif %}
-                    </div>
-                    
-                    <hr>
-                    
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-sm">
-                            <i class="bi bi-pencil"></i> Edit Profile
-                        </a>
-                        <a href="{% url 'accounts:preferences' %}" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-gear"></i> Preferences
-                        </a>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Recent Activity (placeholder) -->
-    <div class="row mt-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-activity"></i> Recent Activity
-                    </h5>
+        <!-- Recent Activity -->
+        <div class="mt-8">
+            <div class="bg-white rounded-xl shadow-lg border border-gray-100 animate-fade-in">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-bold text-gray-900 flex items-center">
+                        <i class="fas fa-clock text-green-500 mr-3"></i>
+                        Recent Activity
+                    </h2>
                 </div>
-                <div class="card-body">
+                <div class="p-6">
                     {% if total_submissions > 0 %}
-                    <p class="text-muted">Your recent practice sessions and assessments will appear here.</p>
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-clock text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Your Recent Activity</h3>
+                        <p class="text-gray-600">Your recent practice sessions and assessments will appear here.</p>
+                    </div>
                     {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-clipboard-check text-muted" style="font-size: 3rem;"></i>
-                        <h6 class="mt-3 text-muted">No activity yet</h6>
-                        <p class="text-muted">Start practicing to see your activity here!</p>
-                        <a href="{% url 'practice:list' %}" class="btn btn-primary">
-                            <i class="bi bi-pencil-square"></i> Start Your First Practice
+                    <div class="text-center py-12">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-clipboard-list text-gray-400 text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No activity yet</h3>
+                        <p class="text-gray-600 mb-6">Start practicing to see your activity here!</p>
+                        <a href="{% url 'practice:list' %}" class="inline-flex items-center px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
+                            <i class="fas fa-pencil-alt mr-2"></i>
+                            Start Your First Practice
                         </a>
                     </div>
                     {% endif %}
