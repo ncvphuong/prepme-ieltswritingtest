@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ task.title }} - IELTS Writing Test{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Back button -->
+            <div class="mb-3">
+                <a href="{% url 'practice:list' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Tasks
+                </a>
+            </div>
+            
+            <!-- Task Details Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">{{ task.title }}</h4>
+                        <span class="badge bg-light text-dark">{{ task.task_code }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Task Meta Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-book text-primary me-2"></i>
+                                <span class="fw-semibold">Module:</span>
+                                <span class="ms-2 badge bg-{{ task.module_type }}">
+                                    {{ task.get_module_type_display }}
+                                </span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-tasks text-primary me-2"></i>
+                                <span class="fw-semibold">Task:</span>
+                                <span class="ms-2">{{ task.get_task_number_display }}</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-signal text-primary me-2"></i>
+                                <span class="fw-semibold">Difficulty:</span>
+                                <span class="ms-2 badge bg-{{ task.difficulty_level }}">
+                                    {{ task.get_difficulty_level_display }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-clock text-primary me-2"></i>
+                                <span class="fw-semibold">Time Limit:</span>
+                                <span class="ms-2">{{ task.time_limit_minutes }} minutes</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="fas fa-font text-primary me-2"></i>
+                                <span class="fw-semibold">Word Count:</span>
+                                <span class="ms-2">{{ task.word_limit_min }} - {{ task.word_limit_max }} words</span>
+                            </div>
+                            {% if task.topic %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <i class="fas fa-tag text-primary me-2"></i>
+                                    <span class="fw-semibold">Topic:</span>
+                                    <span class="ms-2 badge bg-secondary">{{ task.topic.name }}</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Task Prompt -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3">Task Prompt</h5>
+                        <div class="p-3 bg-light rounded">
+                            {{ task.prompt|linebreaks }}
+                        </div>
+                    </div>
+                    
+                    <!-- Instructions -->
+                    {% if task.instruction %}
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">Instructions</h5>
+                            <div class="p-3 bg-info bg-opacity-10 rounded border-start border-4 border-info">
+                                {{ task.instruction|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Sample Text (if available) -->
+                    {% if task.sample_text %}
+                        <div class="mb-4">
+                            <h5 class="text-primary mb-3">Reference Material</h5>
+                            <div class="p-3 bg-warning bg-opacity-10 rounded border-start border-4 border-warning">
+                                {{ task.sample_text|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Draft Status (if exists) -->
+            {% if has_draft %}
+                <div class="alert alert-info d-flex align-items-center mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <div>
+                        <strong>Draft Available</strong><br>
+                        You have a saved draft for this task from {{ latest_draft.created_at|date:"M d, Y H:i" }}.
+                        <small class="text-muted d-block">
+                            Word count: {{ latest_draft.word_count|default:"0" }} words
+                        </small>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                <a href="{% url 'practice:start' task.pk %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-play"></i>
+                    {% if has_draft %}Continue Draft{% else %}Start Practice{% endif %}
+                </a>
+                {% if has_draft %}
+                    <a href="{% url 'practice:start' task.pk %}?new=1" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-plus"></i> Start New Attempt
+                    </a>
+                {% endif %}
+                <a href="{% url 'practice:history' %}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-history"></i> View History
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-academic {
+    background-color: #0d6efd !important;
+}
+
+.bg-general {
+    background-color: #198754 !important;
+}
+
+.bg-beginner {
+    background-color: #20c997 !important;
+}
+
+.bg-intermediate {
+    background-color: #fd7e14 !important;
+}
+
+.bg-advanced {
+    background-color: #dc3545 !important;
+}
+</style>
+{% endblock %}

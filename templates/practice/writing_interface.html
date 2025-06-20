@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Writing Practice - {{ task.title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid vh-100 d-flex flex-column">
+    <!-- Header Bar -->
+    <div class="row bg-primary text-white py-3 flex-shrink-0">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0">{{ task.title }}</h5>
+                    <small>{{ task.task_code }} | {{ task.get_module_type_display }} | {{ task.get_task_number_display }}</small>
+                </div>
+                <div class="text-center">
+                    <div id="timer" class="h4 mb-0">{{ time_limit }}:00</div>
+                    <small>Time Remaining</small>
+                </div>
+                <div class="text-end">
+                    <div id="word-count" class="h5 mb-0">0</div>
+                    <small>{{ word_limit_min }}-{{ word_limit_max }} words</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="row flex-grow-1">
+        <!-- Task Instructions (Left Panel) -->
+        <div class="col-lg-4 col-md-5 bg-light border-end overflow-auto">
+            <div class="p-4">
+                <h6 class="text-primary mb-3">Task Instructions</h6>
+                <div class="mb-4">
+                    <div class="p-3 bg-white rounded border">
+                        {{ task.prompt|linebreaks }}
+                    </div>
+                </div>
+                
+                {% if task.instruction %}
+                    <h6 class="text-primary mb-3">Writing Guidelines</h6>
+                    <div class="mb-4">
+                        <div class="p-3 bg-info bg-opacity-10 rounded border-start border-4 border-info">
+                            {{ task.instruction|linebreaks }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                {% if task.sample_text %}
+                    <h6 class="text-primary mb-3">Reference Material</h6>
+                    <div class="mb-4">
+                        <div class="p-3 bg-warning bg-opacity-10 rounded border-start border-4 border-warning">
+                            {{ task.sample_text|linebreaks }}
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <!-- Quick Tips -->
+                <div class="mb-3">
+                    <h6 class="text-primary mb-3">Quick Tips</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Plan your response before writing</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Use clear paragraph structure</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Check word count regularly</li>
+                        <li class="mb-1"><i class="fas fa-check text-success me-2"></i>Your work is auto-saved every 30 seconds</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Writing Area (Right Panel) -->
+        <div class="col-lg-8 col-md-7 d-flex flex-column">
+            <div class="p-4 flex-grow-1 d-flex flex-column">
+                <form method="post" id="writing-form" class="d-flex flex-column flex-grow-1">
+                    {% csrf_token %}
+                    
+                    <!-- Auto-save Status -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span id="auto-save-status" class="badge bg-secondary">Ready</span>
+                            <small class="text-muted ms-2">Auto-save every 30 seconds</small>
+                        </div>
+                        <div>
+                            <button type="button" id="save-draft" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-save"></i> Save Draft
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Writing Textarea -->
+                    <div class="flex-grow-1 d-flex flex-column">
+                        {{ form.content }}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="mt-4 d-flex justify-content-between">
+                        <a href="{% url 'practice:task_detail' task.pk %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Task
+                        </a>
+                        <div>
+                            <button type="button" id="pause-timer" class="btn btn-warning me-2">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check"></i> Submit for Review
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pause Modal -->
+<div class="modal fade" id="pauseModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Practice Paused</h5>
+            </div>
+            <div class="modal-body text-center">
+                <i class="fas fa-pause-circle fa-3x text-warning mb-3"></i>
+                <p>Your practice session is paused. Your progress is automatically saved.</p>
+                <p class="text-muted small">Click "Resume" to continue with your remaining time.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-primary" id="resume-timer">
+                    <i class="fas fa-play"></i> Resume
+                </button>
+                <a href="{% url 'practice:task_detail' task.pk %}" class="btn btn-outline-secondary">
+                    Exit Practice
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.writing-textarea {
+    resize: none;
+    border: 2px solid #e9ecef;
+    transition: border-color 0.15s ease-in-out;
+    font-family: 'Times New Roman', serif;
+    font-size: 16px;
+    line-height: 1.6;
+    padding: 20px;
+}
+
+.writing-textarea:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.timer-warning {
+    color: #ffc107 !important;
+}
+
+.timer-danger {
+    color: #dc3545 !important;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize variables
+    let timeLeft = {{ time_limit }} * 60; // Convert minutes to seconds
+    let isPaused = false;
+    let timerInterval;
+    let autoSaveInterval;
+    let submissionId = {{ existing_draft.id|default:"null" }};
+    
+    // DOM elements
+    const timerDisplay = document.getElementById('timer');
+    const wordCountDisplay = document.getElementById('word-count');
+    const autoSaveStatus = document.getElementById('auto-save-status');
+    const textarea = document.querySelector('textarea[name="content"]');
+    const pauseButton = document.getElementById('pause-timer');
+    const resumeButton = document.getElementById('resume-timer');
+    const saveDraftButton = document.getElementById('save-draft');
+    const pauseModal = new bootstrap.Modal(document.getElementById('pauseModal'));
+    
+    // Load existing content if available
+    {% if existing_draft %}
+        textarea.value = `{{ existing_draft.content|escapejs }}`;
+        updateWordCount();
+    {% endif %}
+    
+    // Timer functions
+    function updateTimer() {
+        if (isPaused) return;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            autoSubmit();
+            return;
+        }
+        
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        const display = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        
+        timerDisplay.textContent = display;
+        
+        // Change color based on time remaining
+        if (timeLeft <= 300) { // 5 minutes
+            timerDisplay.className = 'h4 mb-0 timer-danger';
+        } else if (timeLeft <= 600) { // 10 minutes
+            timerDisplay.className = 'h4 mb-0 timer-warning';
+        }
+        
+        timeLeft--;
+    }
+    
+    function startTimer() {
+        timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+    }
+    
+    function pauseTimer() {
+        isPaused = true;
+        pauseButton.innerHTML = '<i class="fas fa-play"></i> Resume';
+        pauseModal.show();
+    }
+    
+    function resumeTimer() {
+        isPaused = false;
+        pauseButton.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        pauseModal.hide();
+    }
+    
+    // Word count function
+    function updateWordCount() {
+        const text = textarea.value.trim();
+        const wordCount = text === '' ? 0 : text.split(/\s+/).length;
+        wordCountDisplay.textContent = wordCount;
+        
+        // Color coding for word count
+        const minWords = {{ word_limit_min }};
+        const maxWords = {{ word_limit_max }};
+        
+        if (wordCount < minWords) {
+            wordCountDisplay.className = 'h5 mb-0 text-warning';
+        } else if (wordCount > maxWords) {
+            wordCountDisplay.className = 'h5 mb-0 text-danger';
+        } else {
+            wordCountDisplay.className = 'h5 mb-0 text-success';
+        }
+        
+        return wordCount;
+    }
+    
+    // Auto-save function
+    function autoSave() {
+        if (!submissionId) {
+            createNewSubmission();
+            return;
+        }
+        
+        const content = textarea.value;
+        const wordCount = updateWordCount();
+        
+        autoSaveStatus.textContent = 'Saving...';
+        autoSaveStatus.className = 'badge bg-warning';
+        
+        fetch('{% url "practice:autosave" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: `submission_id=${submissionId}&content=${encodeURIComponent(content)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                autoSaveStatus.textContent = 'Saved';
+                autoSaveStatus.className = 'badge bg-success';
+                setTimeout(() => {
+                    autoSaveStatus.textContent = 'Auto-save';
+                    autoSaveStatus.className = 'badge bg-secondary';
+                }, 2000);
+            } else {
+                autoSaveStatus.textContent = 'Error';
+                autoSaveStatus.className = 'badge bg-danger';
+            }
+        })
+        .catch(error => {
+            console.error('Auto-save error:', error);
+            autoSaveStatus.textContent = 'Error';
+            autoSaveStatus.className = 'badge bg-danger';
+        });
+    }
+    
+    function createNewSubmission() {
+        // This would be handled by the form submission
+        // For now, we'll just show that we need to create a new submission
+        autoSaveStatus.textContent = 'Creating...';
+        autoSaveStatus.className = 'badge bg-info';
+    }
+    
+    function autoSubmit() {
+        alert('Time is up! Your response will be submitted automatically.');
+        document.getElementById('writing-form').submit();
+    }
+    
+    // Event listeners
+    textarea.addEventListener('input', updateWordCount);
+    pauseButton.addEventListener('click', function() {
+        if (isPaused) {
+            resumeTimer();
+        } else {
+            pauseTimer();
+        }
+    });
+    
+    resumeButton.addEventListener('click', resumeTimer);
+    saveDraftButton.addEventListener('click', autoSave);
+    
+    // Form submission handler
+    document.getElementById('writing-form').addEventListener('submit', function(e) {
+        const wordCount = updateWordCount();
+        const minWords = {{ word_limit_min }};
+        
+        if (wordCount < minWords) {
+            e.preventDefault();
+            if (!confirm(`Your response has only ${wordCount} words. The minimum is ${minWords} words. Submit anyway?`)) {
+                return;
+            }
+        }
+        
+        // Clear intervals before submission
+        clearInterval(timerInterval);
+        clearInterval(autoSaveInterval);
+    });
+    
+    // Initialize
+    startTimer();
+    updateWordCount();
+    
+    // Set up auto-save every 30 seconds
+    autoSaveInterval = setInterval(autoSave, 30000);
+    
+    // Save before page unload
+    window.addEventListener('beforeunload', function(e) {
+        autoSave();
+    });
+});
+</script>
+{% endblock %}

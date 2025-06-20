@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Practice Tasks - IELTS Writing Test{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-filter"></i> Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filter-form">
+                        <!-- Search -->
+                        <div class="mb-3">
+                            <label for="search" class="form-label">Search</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   value="{{ current_filters.search }}" placeholder="Search tasks...">
+                        </div>
+                        
+                        <!-- Module Type -->
+                        <div class="mb-3">
+                            <label for="module" class="form-label">Module</label>
+                            <select class="form-select" id="module" name="module">
+                                <option value="">All Modules</option>
+                                {% for value, label in module_types %}
+                                    <option value="{{ value }}" {% if current_filters.module == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Task Number -->
+                        <div class="mb-3">
+                            <label for="task" class="form-label">Task</label>
+                            <select class="form-select" id="task" name="task">
+                                <option value="">All Tasks</option>
+                                {% for value, label in task_numbers %}
+                                    <option value="{{ value }}" {% if current_filters.task == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Difficulty -->
+                        <div class="mb-3">
+                            <label for="difficulty" class="form-label">Difficulty</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="">All Levels</option>
+                                {% for value, label in difficulties %}
+                                    <option value="{{ value }}" {% if current_filters.difficulty == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Topic -->
+                        <div class="mb-3">
+                            <label for="topic" class="form-label">Topic</label>
+                            <select class="form-select" id="topic" name="topic">
+                                <option value="">All Topics</option>
+                                {% for topic in topics %}
+                                    <option value="{{ topic.id }}" {% if current_filters.topic == topic.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ topic.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Apply Filters</button>
+                            <a href="{% url 'practice:list' %}" class="btn btn-outline-secondary">Clear All</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tasks List -->
+        <div class="col-lg-9 col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Practice Tasks</h2>
+                <span class="badge bg-info fs-6">{{ page_obj.paginator.count }} tasks found</span>
+            </div>
+            
+            {% if tasks %}
+                <div class="row">
+                    {% for task in tasks %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100 border-0 shadow-sm task-card">
+                                <div class="card-header bg-light border-0">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="badge bg-{{ task.module_type|default:'primary' }}">
+                                            {{ task.get_module_type_display }}
+                                        </span>
+                                        <small class="text-muted">{{ task.task_code }}</small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ task.title }}</h6>
+                                    <p class="card-text text-muted small">{{ task.prompt|truncatewords:15 }}</p>
+                                    
+                                    <div class="mb-2">
+                                        <small class="text-muted">
+                                            <i class="fas fa-clock"></i> {{ task.time_limit_minutes }}min |
+                                            <i class="fas fa-font"></i> {{ task.word_limit_min }}-{{ task.word_limit_max }} words
+                                        </small>
+                                    </div>
+                                    
+                                    {% if task.topic %}
+                                        <span class="badge bg-secondary mb-2">{{ task.topic.name }}</span>
+                                    {% endif %}
+                                    
+                                    <div class="mt-auto">
+                                        <span class="badge bg-{{ task.difficulty_level|default:'info' }}">
+                                            {{ task.get_difficulty_level_display }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-transparent border-0">
+                                    <a href="{% url 'practice:task_detail' task.pk %}" 
+                                       class="btn btn-outline-primary btn-sm w-100">
+                                        View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="Tasks pagination">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                    <h4>No practice tasks found</h4>
+                    <p class="text-muted">Try adjusting your filters or search terms.</p>
+                    <a href="{% url 'practice:list' %}" class="btn btn-primary">View All Tasks</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.task-card {
+    transition: transform 0.2s;
+}
+
+.task-card:hover {
+    transform: translateY(-5px);
+}
+
+.bg-academic {
+    background-color: #0d6efd !important;
+}
+
+.bg-general {
+    background-color: #198754 !important;
+}
+
+.bg-beginner {
+    background-color: #20c997 !important;
+}
+
+.bg-intermediate {
+    background-color: #fd7e14 !important;
+}
+
+.bg-advanced {
+    background-color: #dc3545 !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('filter-form');
+    const selects = form.querySelectorAll('select');
+    
+    selects.forEach(select => {
+        select.addEventListener('change', function() {
+            form.submit();
+        });
+    });
+});
+</script>
+{% endblock %}

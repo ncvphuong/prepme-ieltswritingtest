@@ -1,0 +1,241 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Practice History - IELTS Writing Test{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Practice History</h2>
+                <a href="{% url 'practice:list' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Practice
+                </a>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="fas fa-file-alt fa-2x text-primary mb-2"></i>
+                            <h4 class="text-primary">{{ total_submissions }}</h4>
+                            <p class="text-muted mb-0">Total Attempts</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="fas fa-edit fa-2x text-warning mb-2"></i>
+                            <h4 class="text-warning">{{ draft_count }}</h4>
+                            <p class="text-muted mb-0">Drafts</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="fas fa-paper-plane fa-2x text-info mb-2"></i>
+                            <h4 class="text-info">{{ submitted_count }}</h4>
+                            <p class="text-muted mb-0">Submitted</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card border-0 shadow-sm text-center">
+                        <div class="card-body">
+                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                            <h4 class="text-success">{{ assessed_count }}</h4>
+                            <p class="text-muted mb-0">Assessed</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Submissions List -->
+            {% if submissions %}
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Your Practice Sessions</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Task</th>
+                                        <th>Module</th>
+                                        <th>Status</th>
+                                        <th>Word Count</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for submission in submissions %}
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ submission.task.title|truncatechars:40 }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ submission.task.task_code }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ submission.task.module_type }}">
+                                                    {{ submission.task.get_module_type_display }}
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">{{ submission.task.get_task_number_display }}</small>
+                                            </td>
+                                            <td>
+                                                {% if submission.status == 'draft' %}
+                                                    <span class="badge bg-warning">
+                                                        <i class="fas fa-edit"></i> Draft
+                                                    </span>
+                                                {% elif submission.status == 'submitted' %}
+                                                    <span class="badge bg-info">
+                                                        <i class="fas fa-clock"></i> Assessing
+                                                    </span>
+                                                {% elif submission.status == 'assessed' %}
+                                                    <span class="badge bg-success">
+                                                        <i class="fas fa-check"></i> Complete
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="{% if submission.word_count < submission.task.word_limit_min %}text-warning{% elif submission.word_count > submission.task.word_limit_max %}text-danger{% else %}text-success{% endif %}">
+                                                    {{ submission.word_count|default:"0" }}
+                                                </span>
+                                                <br>
+                                                <small class="text-muted">
+                                                    {{ submission.task.word_limit_min }}-{{ submission.task.word_limit_max }}
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div>{{ submission.created_at|date:"M d, Y" }}</div>
+                                                <small class="text-muted">{{ submission.created_at|time:"H:i" }}</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    {% if submission.status == 'draft' %}
+                                                        <a href="{% url 'practice:start' submission.task.pk %}" 
+                                                           class="btn btn-sm btn-outline-primary"
+                                                           title="Continue Draft">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="{% url 'practice:submit' submission.id %}" 
+                                                           class="btn btn-sm btn-outline-info"
+                                                           title="View Details">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                    
+                                                    {% if submission.status == 'assessed' %}
+                                                        <a href="#" 
+                                                           class="btn btn-sm btn-outline-success"
+                                                           title="View Assessment">
+                                                            <i class="fas fa-chart-line"></i>
+                                                        </a>
+                                                    {% endif %}
+                                                    
+                                                    <a href="{% url 'practice:task_detail' submission.task.pk %}" 
+                                                       class="btn btn-sm btn-outline-secondary"
+                                                       title="View Task">
+                                                        <i class="fas fa-file-alt"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                {% if is_paginated %}
+                    <nav aria-label="History pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <!-- Empty State -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-history fa-4x text-muted mb-4"></i>
+                        <h4>No Practice History Yet</h4>
+                        <p class="text-muted mb-4">Start practicing to see your progress and submissions here.</p>
+                        <a href="{% url 'practice:list' %}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-play"></i> Start Your First Practice
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-academic {
+    background-color: #0d6efd !important;
+}
+
+.bg-general {
+    background-color: #198754 !important;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.btn-group .btn {
+    margin-right: 0;
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+</style>
+{% endblock %}

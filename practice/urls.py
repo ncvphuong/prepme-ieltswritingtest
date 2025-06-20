@@ -12,4 +12,5 @@ urlpatterns = [
     path('start/<int:task_id>/', views.StartPracticeView.as_view(), name='start'),
     path('submit/<int:submission_id>/', views.SubmitPracticeView.as_view(), name='submit'),
     path('history/', views.PracticeHistoryView.as_view(), name='history'),
+    path('autosave/', views.autosave_submission, name='autosave'),
 ]
