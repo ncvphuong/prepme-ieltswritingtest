@@ -36,3 +36,12 @@ def percentage(value, total):
         return (float(value) / float(total)) * 100
     except (ValueError, TypeError):
         return 0
+
+
+@register.filter
+def lookup(dictionary, key):
+    """Lookup a value in a dictionary by key."""
+    try:
+        return dictionary.get(key, '')
+    except AttributeError:
+        return ''

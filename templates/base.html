@@ -125,6 +125,7 @@
                         <!-- Signed-in User Navigation -->
                         <a href="{% url 'core:home' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
                         <a href="{% url 'practice:list' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice</a>
+                        <a href="{% url 'progress:dashboard' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Progress</a>
                         <a href="{% url 'practice:history' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice History</a>
                         <a href="{% url 'subscriptions:dashboard' %}" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Subscription</a>
                     {% else %}
@@ -207,12 +208,12 @@
                     <!-- Signed-in User Mobile Menu -->
                     <a href="{% url 'core:home' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
                     <a href="{% url 'practice:list' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice</a>
+                    <a href="{% url 'progress:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Progress</a>
                     <a href="{% url 'practice:history' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Practice History</a>
                     <a href="{% url 'subscriptions:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Subscription</a>
                     <hr class="my-3">
                     <a href="{% url 'accounts:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Dashboard</a>
                     <a href="{% url 'accounts:profile' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Profile</a>
-                    <a href="{% url 'progress:dashboard' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Progress</a>
                     <a href="{% url 'accounts:preferences' %}" class="block text-gray-600 hover:text-primary-600 font-medium transition-colors">Settings</a>
                     <a href="{% url 'accounts:logout' %}" class="block text-red-600 hover:text-red-700 font-medium transition-colors">Logout</a>
                 {% else %}
