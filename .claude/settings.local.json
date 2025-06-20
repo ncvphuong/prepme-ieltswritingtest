@@ -10,7 +10,10 @@
       "Bash(django-admin startproject:*)",
       "Bash(mkdir:*)",
       "Bash(rm:*)",
-      "Bash(python manage.py:*)"
+      "Bash(python manage.py:*)",
+      "Bash(chmod:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

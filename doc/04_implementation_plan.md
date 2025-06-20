@@ -23,38 +23,51 @@
 
 ### Sprint 1: Project Setup & Core Infrastructure (Weeks 1-2)
 
-#### Week 1: Environment Setup
-- [ ] **Development Environment**
-  - Set up Python virtual environment
-  - Install Django and core dependencies
-  - Configure PostgreSQL database
-  - Set up Docker development environment
-  - Create basic project structure
+#### Week 1: Environment Setup ✅
+- [x] **Development Environment** ✅
+  - ✅ Set up Python virtual environment
+  - ✅ Install Django and core dependencies
+  - ⏸️ Configure PostgreSQL database (using SQLite for now)
+  - ⏸️ Set up Docker development environment (deferred)
+  - ✅ Create basic project structure
 
-- [ ] **Version Control & CI/CD**
-  - Initialize Git repository
-  - Set up GitHub repository with branch protection
-  - Configure GitHub Actions for CI/CD
-  - Set up automated testing pipeline
+- [x] **Version Control & CI/CD** ✅
+  - ✅ Initialize Git repository
+  - ⏸️ Set up GitHub repository with branch protection (local for now)
+  - ⏸️ Configure GitHub Actions for CI/CD (deferred)
+  - ⏸️ Set up automated testing pipeline (deferred)
 
-- [ ] **Core Configuration**
-  - Configure Django settings (development/production)
-  - Set up environment variables management
-  - Configure logging and error handling
-  - Set up static files handling
+- [x] **Core Configuration** ✅
+  - ✅ Configure Django settings (development/production)
+  - ✅ Set up environment variables management
+  - ✅ Configure logging and error handling
+  - ✅ Set up static files handling
 
-#### Week 2: Core App Foundation
+- [x] **Automation Scripts** ✅
+  - ✅ Create run_server.sh script
+  - ✅ Create setup_dev.sh script
+  - ✅ Create reset_db.sh script
+  - ✅ Create test.sh script
+
+#### Week 2: Core App Foundation & Basic UI
 - [ ] **Core App Development**
-  - Create `core` app with base models and utilities
-  - Implement custom User model in `accounts` app
-  - Set up Django admin interface
-  - Create base templates and static files structure
+  - ✅ Create `core` app with base models and utilities
+  - ✅ Implement custom User model in `accounts` app
+  - ✅ Set up Django admin interface
+  - [ ] Create base templates and static files structure
+  - [ ] Create homepage and basic navigation
 
 - [ ] **Basic Authentication**
-  - Implement user registration and login
-  - Create user profile management
-  - Set up password reset functionality
-  - Implement basic user dashboard
+  - [ ] Implement user registration and login views
+  - [ ] Create user profile management
+  - [ ] Set up password reset functionality
+  - [ ] Implement basic user dashboard
+
+- [ ] **Frontend Foundation**
+  - [ ] Create base HTML templates with modern CSS
+  - [ ] Implement responsive navigation
+  - [ ] Add basic styling and UI components
+  - [ ] Create user authentication forms
 
 **Deliverables**: 
 - Working Django project with user authentication
