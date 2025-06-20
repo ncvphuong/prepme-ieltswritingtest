@@ -4,151 +4,210 @@
 {% block title %}{{ task.title }} - IELTS Writing Test{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <!-- Back button -->
-            <div class="mb-3">
-                <a href="{% url 'practice:list' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to Tasks
-                </a>
-            </div>
-            
-            <!-- Task Details Card -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0">{{ task.title }}</h4>
-                        <span class="badge bg-light text-dark">{{ task.task_code }}</span>
-                    </div>
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Back button -->
+        <div class="mb-6">
+            <a href="{% url 'practice:list' %}" 
+               class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back to Tasks
+            </a>
+        </div>
+        
+        <!-- Task Details Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6">
+                <div class="flex justify-between items-start">
+                    <h1 class="text-2xl font-bold mb-2">{{ task.title }}</h1>
+                    <span class="px-3 py-1 bg-white bg-opacity-20 text-white text-sm font-medium rounded-full">
+                        {{ task.task_code }}
+                    </span>
                 </div>
-                <div class="card-body">
-                    <!-- Task Meta Information -->
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-book text-primary me-2"></i>
-                                <span class="fw-semibold">Module:</span>
-                                <span class="ms-2 badge bg-{{ task.module_type }}">
+            </div>
+            <div class="p-8">
+                <!-- Task Meta Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C20.168 18.477 18.582 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-gray-700">Module:</span>
+                                <span class="ml-2 px-3 py-1 text-xs font-semibold rounded-full
+                                    {% if task.module_type == 'academic' %}bg-blue-100 text-blue-800
+                                    {% elif task.module_type == 'general' %}bg-green-100 text-green-800
+                                    {% else %}bg-purple-100 text-purple-800{% endif %}">
                                     {{ task.get_module_type_display }}
                                 </span>
                             </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-tasks text-primary me-2"></i>
-                                <span class="fw-semibold">Task:</span>
-                                <span class="ms-2">{{ task.get_task_number_display }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+                                </svg>
                             </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-signal text-primary me-2"></i>
-                                <span class="fw-semibold">Difficulty:</span>
-                                <span class="ms-2 badge bg-{{ task.difficulty_level }}">
+                            <div>
+                                <span class="text-sm font-medium text-gray-700">Task:</span>
+                                <span class="ml-2 text-sm text-gray-900">{{ task.get_task_number_display }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-gray-700">Difficulty:</span>
+                                <span class="ml-2 px-3 py-1 text-xs font-semibold rounded-full
+                                    {% if task.difficulty_level == 'beginner' %}bg-green-100 text-green-800
+                                    {% elif task.difficulty_level == 'intermediate' %}bg-yellow-100 text-yellow-800
+                                    {% elif task.difficulty_level == 'advanced' %}bg-red-100 text-red-800
+                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
                                     {{ task.get_difficulty_level_display }}
                                 </span>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-clock text-primary me-2"></i>
-                                <span class="fw-semibold">Time Limit:</span>
-                                <span class="ms-2">{{ task.time_limit_minutes }} minutes</span>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
                             </div>
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="fas fa-font text-primary me-2"></i>
-                                <span class="fw-semibold">Word Count:</span>
-                                <span class="ms-2">{{ task.word_limit_min }} - {{ task.word_limit_max }} words</span>
+                            <div>
+                                <span class="text-sm font-medium text-gray-700">Time Limit:</span>
+                                <span class="ml-2 text-sm text-gray-900 font-medium">{{ task.time_limit_minutes }} minutes</span>
                             </div>
-                            {% if task.topic %}
-                                <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-tag text-primary me-2"></i>
-                                    <span class="fw-semibold">Topic:</span>
-                                    <span class="ms-2 badge bg-secondary">{{ task.topic.name }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+                                <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <span class="text-sm font-medium text-gray-700">Word Count:</span>
+                                <span class="ml-2 text-sm text-gray-900 font-medium">{{ task.word_limit_min }} - {{ task.word_limit_max }} words</span>
+                            </div>
+                        </div>
+                        {% if task.topic %}
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 bg-pink-100 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                                    </svg>
                                 </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    
-                    <!-- Task Prompt -->
-                    <div class="mb-4">
-                        <h5 class="text-primary mb-3">Task Prompt</h5>
-                        <div class="p-3 bg-light rounded">
-                            {{ task.prompt|linebreaks }}
-                        </div>
-                    </div>
-                    
-                    <!-- Instructions -->
-                    {% if task.instruction %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">Instructions</h5>
-                            <div class="p-3 bg-info bg-opacity-10 rounded border-start border-4 border-info">
-                                {{ task.instruction|linebreaks }}
+                                <div>
+                                    <span class="text-sm font-medium text-gray-700">Topic:</span>
+                                    <span class="ml-2 px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded-full">{{ task.topic.name }}</span>
+                                </div>
                             </div>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Sample Text (if available) -->
-                    {% if task.sample_text %}
-                        <div class="mb-4">
-                            <h5 class="text-primary mb-3">Reference Material</h5>
-                            <div class="p-3 bg-warning bg-opacity-10 rounded border-start border-4 border-warning">
-                                {{ task.sample_text|linebreaks }}
-                            </div>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Draft Status (if exists) -->
-            {% if has_draft %}
-                <div class="alert alert-info d-flex align-items-center mb-4">
-                    <i class="fas fa-info-circle me-2"></i>
-                    <div>
-                        <strong>Draft Available</strong><br>
-                        You have a saved draft for this task from {{ latest_draft.created_at|date:"M d, Y H:i" }}.
-                        <small class="text-muted d-block">
-                            Word count: {{ latest_draft.word_count|default:"0" }} words
-                        </small>
+                        {% endif %}
                     </div>
                 </div>
-            {% endif %}
-            
-            <!-- Action Buttons -->
-            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                <a href="{% url 'practice:start' task.pk %}" class="btn btn-primary btn-lg">
-                    <i class="fas fa-play"></i>
-                    {% if has_draft %}Continue Draft{% else %}Start Practice{% endif %}
-                </a>
-                {% if has_draft %}
-                    <a href="{% url 'practice:start' task.pk %}?new=1" class="btn btn-outline-primary btn-lg">
-                        <i class="fas fa-plus"></i> Start New Attempt
-                    </a>
+                
+                <!-- Task Prompt -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                        <svg class="w-5 h-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Task Prompt
+                    </h2>
+                    <div class="p-6 bg-gray-50 rounded-lg border-l-4 border-blue-500">
+                        <div class="text-gray-800 leading-relaxed">{{ task.prompt|linebreaks }}</div>
+                    </div>
+                </div>
+                
+                <!-- Instructions -->
+                {% if task.instruction %}
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 text-indigo-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Instructions
+                        </h2>
+                        <div class="p-6 bg-blue-50 rounded-lg border-l-4 border-indigo-500">
+                            <div class="text-gray-800 leading-relaxed">{{ task.instruction|linebreaks }}</div>
+                        </div>
+                    </div>
                 {% endif %}
-                <a href="{% url 'practice:history' %}" class="btn btn-outline-secondary btn-lg">
-                    <i class="fas fa-history"></i> View History
-                </a>
+                
+                <!-- Sample Text (if available) -->
+                {% if task.sample_text %}
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg class="w-5 h-5 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            Reference Material
+                        </h2>
+                        <div class="p-6 bg-yellow-50 rounded-lg border-l-4 border-yellow-500">
+                            <div class="text-gray-800 leading-relaxed">{{ task.sample_text|linebreaks }}</div>
+                        </div>
+                    </div>
+                {% endif %}
             </div>
+        </div>
+        
+        <!-- Draft Status (if exists) -->
+        {% if has_draft %}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-4 mt-0.5">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-blue-900 mb-1">Draft Available</h3>
+                        <p class="text-blue-800 mb-2">
+                            You have a saved draft for this task from {{ latest_draft.created_at|date:"M d, Y H:i" }}.
+                        </p>
+                        <p class="text-sm text-blue-700">
+                            Word count: <span class="font-medium">{{ latest_draft.word_count|default:"0" }} words</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'practice:start' task.pk %}" 
+               class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15M9 10v4a2 2 0 002 2h2a2 2 0 002-2v-4M9 10V9a2 2 0 012-2h2a2 2 0 012 2v1"></path>
+                </svg>
+                {% if has_draft %}Continue Draft{% else %}Start Practice{% endif %}
+            </a>
+            {% if has_draft %}
+                <a href="{% url 'practice:start' task.pk %}?new=1" 
+                   class="inline-flex items-center justify-center px-8 py-4 bg-white border-2 border-blue-600 text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Start New Attempt
+                </a>
+            {% endif %}
+            <a href="{% url 'practice:history' %}" 
+               class="inline-flex items-center justify-center px-8 py-4 bg-white border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                View History
+            </a>
         </div>
     </div>
 </div>
-
-<style>
-.bg-academic {
-    background-color: #0d6efd !important;
-}
-
-.bg-general {
-    background-color: #198754 !important;
-}
-
-.bg-beginner {
-    background-color: #20c997 !important;
-}
-
-.bg-intermediate {
-    background-color: #fd7e14 !important;
-}
-
-.bg-advanced {
-    background-color: #dc3545 !important;
-}
-</style>
 {% endblock %}
