@@ -74,15 +74,24 @@
                 <form method="post" id="writing-form" class="d-flex flex-column flex-grow-1">
                     {% csrf_token %}
                     
-                    <!-- Auto-save Status -->
+                    <!-- Auto-save Status and Main Actions -->
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
                             <span id="auto-save-status" class="badge bg-secondary">Ready</span>
                             <small class="text-muted ms-2">Auto-save every 30 seconds</small>
                         </div>
-                        <div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'practice:task_detail' task.pk %}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
                             <button type="button" id="save-draft" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-save"></i> Save Draft
+                            </button>
+                            <button type="button" id="pause-timer" class="btn btn-warning btn-sm">
+                                <i class="fas fa-pause"></i> Pause
+                            </button>
+                            <button type="submit" class="btn btn-success btn-sm">
+                                <i class="fas fa-check"></i> Submit
                             </button>
                         </div>
                     </div>
@@ -90,21 +99,6 @@
                     <!-- Writing Textarea -->
                     <div class="flex-grow-1 d-flex flex-column">
                         {{ form.content }}
-                    </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="mt-4 d-flex justify-content-between">
-                        <a href="{% url 'practice:task_detail' task.pk %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Task
-                        </a>
-                        <div>
-                            <button type="button" id="pause-timer" class="btn btn-warning me-2">
-                                <i class="fas fa-pause"></i> Pause
-                            </button>
-                            <button type="submit" class="btn btn-success">
-                                <i class="fas fa-check"></i> Submit for Review
-                            </button>
-                        </div>
                     </div>
                 </form>
             </div>
