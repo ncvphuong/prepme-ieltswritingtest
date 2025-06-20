@@ -101,12 +101,15 @@ class StripeService:
     def handle_successful_payment(self, stripe_subscription):
         """Handle successful subscription payment."""
         try:
+            logger.info(f"Processing subscription {stripe_subscription.id}")
             metadata = stripe_subscription.metadata
             user_id = metadata.get('user_id')
             plan_id = metadata.get('plan_id')
             
+            logger.info(f"Metadata: user_id={user_id}, plan_id={plan_id}")
+            
             if not user_id or not plan_id:
-                logger.error(f"Missing metadata in subscription {stripe_subscription.id}")
+                logger.error(f"Missing metadata in subscription {stripe_subscription.id}: {metadata}")
                 return None
             
             from django.contrib.auth import get_user_model
@@ -115,15 +118,41 @@ class StripeService:
             user = User.objects.get(id=user_id)
             plan = SubscriptionPlan.objects.get(id=plan_id)
             
-            # Calculate billing period
-            current_period_start = timezone.datetime.fromtimestamp(
-                stripe_subscription.current_period_start,
-                tz=timezone.utc
-            )
-            current_period_end = timezone.datetime.fromtimestamp(
-                stripe_subscription.current_period_end,
-                tz=timezone.utc
-            )
+            # Get billing period from latest invoice
+            from datetime import datetime, timezone as dt_timezone
+            try:
+                invoice = self.stripe.Invoice.retrieve(stripe_subscription.latest_invoice)
+                current_period_start = datetime.fromtimestamp(
+                    invoice.period_start,
+                    tz=dt_timezone.utc
+                )
+                current_period_end = datetime.fromtimestamp(
+                    invoice.period_end,
+                    tz=dt_timezone.utc
+                )
+                
+                # If period start and end are the same, it's immediate billing
+                # Calculate proper period based on plan
+                if current_period_start == current_period_end:
+                    logger.info("Same period start/end detected, calculating billing cycle")
+                    current_period_start = datetime.fromtimestamp(
+                        stripe_subscription.created,
+                        tz=dt_timezone.utc
+                    )
+                    from dateutil.relativedelta import relativedelta
+                    current_period_end = current_period_start + relativedelta(months=plan.billing_months)
+                
+                logger.info(f"Billing period: {current_period_start} to {current_period_end}")
+            except Exception as e:
+                logger.error(f"Error getting billing period from invoice: {e}")
+                # Fallback to subscription dates
+                current_period_start = datetime.fromtimestamp(
+                    stripe_subscription.created,
+                    tz=dt_timezone.utc
+                )
+                from dateutil.relativedelta import relativedelta
+                current_period_end = current_period_start + relativedelta(months=1)
+                logger.info(f"Using fallback period: {current_period_start} to {current_period_end}")
             
             # Create or update subscription
             subscription, created = UserSubscription.objects.update_or_create(
@@ -142,8 +171,9 @@ class StripeService:
                 }
             )
             
-            # Create payment record
-            invoice = self.stripe.Invoice.retrieve(stripe_subscription.latest_invoice)
+            logger.info(f"{'Created' if created else 'Updated'} subscription {subscription.id} for user {user.id}")
+            
+            # Create payment record (reuse invoice from above)
             payment = PaymentHistory.objects.create(
                 user=user,
                 subscription=subscription,
@@ -151,7 +181,7 @@ class StripeService:
                 amount=Decimal(invoice.amount_paid / 100),  # Convert from cents
                 currency=invoice.currency.upper(),
                 status='succeeded',
-                stripe_payment_intent_id=invoice.payment_intent,
+                stripe_payment_intent_id=getattr(invoice, 'payment_intent', '') or '',
                 stripe_invoice_id=invoice.id,
                 period_start=current_period_start,
                 period_end=current_period_end,
@@ -220,12 +250,37 @@ class StripeService:
             }
             
             subscription.status = status_mapping.get(stripe_sub.status, subscription.status)
-            subscription.current_period_start = timezone.datetime.fromtimestamp(
-                stripe_sub.current_period_start, tz=timezone.utc
-            )
-            subscription.current_period_end = timezone.datetime.fromtimestamp(
-                stripe_sub.current_period_end, tz=timezone.utc
-            )
+            
+            # Get billing period from latest invoice (same fix as payment processing)
+            from datetime import datetime, timezone as dt_timezone
+            try:
+                invoice = self.stripe.Invoice.retrieve(stripe_sub.latest_invoice)
+                current_period_start = datetime.fromtimestamp(
+                    invoice.period_start,
+                    tz=dt_timezone.utc
+                )
+                current_period_end = datetime.fromtimestamp(
+                    invoice.period_end,
+                    tz=dt_timezone.utc
+                )
+                
+                # Handle immediate billing where periods are the same
+                if current_period_start == current_period_end:
+                    current_period_start = datetime.fromtimestamp(
+                        stripe_sub.created,
+                        tz=dt_timezone.utc
+                    )
+                    from dateutil.relativedelta import relativedelta
+                    current_period_end = current_period_start + relativedelta(months=subscription.plan.billing_months)
+                
+                subscription.current_period_start = current_period_start
+                subscription.current_period_end = current_period_end
+                
+            except Exception as e:
+                logger.error(f"Error syncing billing period: {e}")
+                # Keep existing dates if sync fails
+                pass
+            
             subscription.cancel_at_period_end = stripe_sub.cancel_at_period_end
             
             subscription.save()
