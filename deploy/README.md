@@ -24,10 +24,6 @@ sudo apt update && sudo apt upgrade -y
 # Install required packages
 sudo apt install -y python3.12 python3.12-venv python3-pip nginx git certbot python3-certbot-nginx sqlite3
 
-# Create application user or 
-sudo adduser --disabled-password --gecos "" ieltsapp
-sudo usermod -aG www-data ieltsapp
-
 # Create application directory
 sudo mkdir -p /var/www/ieltswritingtest
 sudo chown ieltsapp:www-data /var/www/ieltswritingtest
@@ -42,8 +38,7 @@ sudo ufw enable
 ### 2. Deploy Application
 
 ```bash
-# Switch to app user
-sudo su - ieltsapp
+# Go into the folder
 cd /var/www/ieltswritingtest
 
 # Clone repository
@@ -131,8 +126,6 @@ sudo crontab -e
 ## Updating the Application
 
 ```bash
-# Switch to app user
-sudo su - ieltsapp
 
 # Run deployment script
 cd /var/www/ieltswritingtest
