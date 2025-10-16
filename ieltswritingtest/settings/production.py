@@ -10,22 +10,18 @@ DEBUG = False
 
 # SECURITY WARNING: define the correct hosts in production!
 ALLOWED_HOSTS = [
-    'yourdomain.com',
-    'www.yourdomain.com',
-    # Add your production domain here
+    'ieltswritingtest.com',
+    'www.ieltswritingtest.com',
 ]
 
-# Database - PostgreSQL for production
+# Database - SQLite for production (simple deployment)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST': config('DB_HOST', default='localhost'),
-        'PORT': config('DB_PORT', default='5432'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
         'OPTIONS': {
-            'sslmode': 'require',  # Enable SSL for production
+            'timeout': 30,
+            'init_command': 'PRAGMA foreign_keys=ON; PRAGMA journal_mode=WAL;',
         },
     }
 }
@@ -53,21 +49,20 @@ CSRF_COOKIE_SECURE = True
 # CORS settings (if needed)
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
-    "https://yourdomain.com",
-    "https://www.yourdomain.com",
+    "https://ieltswritingtest.com",
+    "https://www.ieltswritingtest.com",
 ]
 
-# Cache configuration - Redis for production
+# Cache configuration - Local memory cache for simplicity
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/1'),
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'ieltswritingtest-cache',
     }
 }
 
-# Session configuration
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-SESSION_CACHE_ALIAS = 'default'
+# Session configuration - Database sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Email configuration for production
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -78,8 +73,8 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 # Default from email
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@yourdomain.com')
-SERVER_EMAIL = config('SERVER_EMAIL', default='admin@yourdomain.com')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='customer.support@powerdigital.sg')
+SERVER_EMAIL = config('SERVER_EMAIL', default='admin@ieltswritingtest.com')
 
 # Logging configuration for production
 LOGGING = {
@@ -136,6 +131,16 @@ LOGGING = {
 
 # Admin configuration
 ADMINS = [
-    ('Admin', config('ADMIN_EMAIL', default='admin@yourdomain.com')),
+    ('Admin', config('ADMIN_EMAIL', default='admin@ieltswritingtest.com')),
 ]
 MANAGERS = ADMINS
+
+# AI Provider Settings
+ANTHROPIC_API_KEY = config('ANTHROPIC_API_KEY')
+OPENAI_API_KEY = config('OPENAI_API_KEY')
+GOOGLE_API_KEY = config('GOOGLE_API_KEY')
+
+# Stripe Configuration
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET')

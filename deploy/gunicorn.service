@@ -1,0 +1,27 @@
+[Unit]
+Description=IELTS Writing Test Gunicorn daemon
+After=network.target
+
+[Service]
+Type=notify
+User=ieltsapp
+Group=www-data
+RuntimeDirectory=gunicorn
+WorkingDirectory=/var/www/ieltswritingtest
+Environment="PATH=/var/www/ieltswritingtest/venv/bin"
+Environment="DJANGO_SETTINGS_MODULE=ieltswritingtest.settings.production"
+ExecStart=/var/www/ieltswritingtest/venv/bin/gunicorn \
+    --workers 3 \
+    --bind unix:/run/gunicorn/ieltswritingtest.sock \
+    --timeout 120 \
+    --access-logfile /var/log/django/gunicorn_access.log \
+    --error-logfile /var/log/django/gunicorn_error.log \
+    --log-level info \
+    ieltswritingtest.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
